@@ -20,6 +20,7 @@
   <ul>
     <li><a href="#overview">Overview</a></li>
     <li><a href="#features">Key Features</a></li>
+    <li><a href="#structure-explanations">Structure Explanations</a></li>
     <li><a href="#function-explanations">Function Explanations</a></li>
     <li><a href="#usage">Usage</a></li>
   </ul>
@@ -49,6 +50,42 @@
     <li><strong>Error Handling and Robustness:</strong> Built-in mechanisms for input validation, memory safety, and runtime error detection ensure the programs are reliable.</li>
   </ul>
 </section>
+
+<hr>
+
+<h2>Structure Explanations</h2>
+    <div class="structure-explanation">
+        <h2>1. <code>struct Pokemon</code></h2>
+        <p>This structure defines the attributes of an individual Pokémon. It contains:</p>
+        <ul>
+            <li><code>pokemonNum</code>: The Pokémon's unique number in the Pokédex.</li>
+            <li><code>catchPercentage</code>: The percentage chance of catching the Pokémon.</li>
+            <li><code>name</code>: The name of the Pokémon (e.g., "Pikachu").</li>
+            <li><code>type</code>: The type(s) of the Pokémon (e.g., "Electric").</li>
+            <li><code>region</code>: The region from which the Pokémon hails (e.g., "Kanto").</li>
+            <li><code>dexEntry</code>: A description of the Pokémon from the Pokédex.</li>
+            <li><code>data</code>: A pointer to the <code>PokemonStatus</code> structure that stores the Pokémon's status (caught or seen).</li>
+            <li><code>next</code>: A pointer to the next Pokémon in the linked list of caught Pokémon.</li>
+        </ul>
+    </div>
+    <div class="structure-explanation">
+        <h2>2. <code>struct PokemonStatus</code></h2>
+        <p>This structure defines the status of a Pokémon, indicating how many times it has been caught and seen:</p>
+        <ul>
+            <li><code>caught</code>: The number of times the Pokémon has been caught.</li>
+            <li><code>seen</code>: The number of times the Pokémon has been seen by the player.</li>
+        </ul>
+    </div>
+    <div class="structure-explanation">
+        <h2>3. <code>struct PokemonManager</code></h2>
+        <p>This structure manages the operations related to the linked list of caught Pokémon. It includes function pointers for various actions:</p>
+        <ul>
+            <li><code>addPtr</code>: A function pointer to the <code>add</code> function, responsible for adding new Pokémon to the list.</li>
+            <li><code>sortPtr</code>: A function pointer to the <code>sort</code> function, responsible for sorting the Pokémon list.</li>
+            <li><code>deleteNodesPtr</code>: A function pointer to the <code>deleteNodes</code> function, responsible for deleting nodes from the list.</li>
+            <li><code>swapPtr</code>: A function pointer to the <code>swap</code> function, responsible for swapping Pokémon in the list based on sorting criteria.</li>
+        </ul>
+    </div>
 
 <hr>
 
