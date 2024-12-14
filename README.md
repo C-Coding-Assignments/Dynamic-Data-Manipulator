@@ -20,9 +20,7 @@
   <ul>
     <li><a href="#overview">Overview</a></li>
     <li><a href="#features">Key Features</a></li>
-    <li><a href="#word-frequency-analyzer">Word Frequency Analyzer</a></li>
-    <li><a href="#linked-list-manipulator">Linked List Manipulator</a></li>
-    <li><a href="#matrix-processor">Matrix Processor</a></li>
+    <li><a href="#function-explanations">Function Explanations</a></li>
     <li><a href="#usage">Usage</a></li>
   </ul>
 </details>
