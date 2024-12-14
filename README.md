@@ -89,50 +89,85 @@
 
 <hr>
 
-<h2>Function Explanations</h2>
+<h2>Function Definitions</h2>
     <div class="function-explanation">
-        <h2>1. <code>validRegion(char *region)</code></h2>
-        <p>This function checks whether the user has entered a valid Pokémon region. It converts the first character to uppercase and the rest to lowercase before comparing it against known regions (Kanto, Johto, Hoenn, Sinnoh). It returns <code>true</code> if the region is valid, otherwise <code>false</code>.</p>
+        <h2><code>bool validRegion(char *)</code></h2>
+        <p><strong>Description:</strong> This function checks whether the provided region string is a valid Pokémon region. It allows the user to specify a region in the game, ensuring that only valid regions are selected.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+            <li><code>char *region</code>: A pointer to a string containing the region input by the user.</li>
+        </ul>
+        <p><strong>Returns:</strong> A boolean value: <code>true</code> if the region is valid, <code>false</code> otherwise.</p>
     </div>
     <div class="function-explanation">
-        <h2>2. <code>menu()</code></h2>
-        <p>This function displays the main menu of the Pokémon adventure game. It presents the available options for the user to interact with, including options to hunt, view Pokémon caught, sort Pokémon, see statistics, and more.</p>
+        <h2><code>void menu()</code></h2>
+        <p><strong>Description:</strong> This function prints a neat and organized menu that provides the player with different options to interact with the Pokémon game. It serves as the starting point for navigating through various gameplay features.</p>
+        <p><strong>Parameters:</strong> None</p>
+        <p><strong>Returns:</strong> Nothing (void).</p>
     </div>
     <div class="function-explanation">
-        <h2>3. <code>getSelection(char *input)</code></h2>
-        <p>This function retrieves the user's input for their menu selection. It ensures that the input is properly capitalized and formatted for further processing. The user is prompted to make a choice from the available menu options.</p>
+        <h2><code>void getSelection(char *)</code></h2>
+        <p><strong>Description:</strong> This function captures the player's input from the menu selection and processes it into a friendly format. It helps ensure that user input is clean and valid for further processing in the game.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+            <li><code>char *selection</code>: A pointer to a character array where the formatted input will be stored.</li>
+        </ul>
+        <p><strong>Returns:</strong> Nothing (void).</p>
     </div>
     <div class="function-explanation">
-        <h2>4. <code>hunt(...)</code></h2>
-        <p>The <code>hunt</code> function facilitates the process of catching a Pokémon. It randomly selects a Pokémon based on the chosen region (Kanto, Johto, Hoenn, or Sinnoh). The user is then prompted to choose a ball to throw in an attempt to catch the Pokémon. If successful, the Pokémon is added to the user's collection. This function handles all logic related to the hunting mechanics and ball usage.</p>
+        <h2><code>void hunt(char *, struct Pokemon *, const int *, void (*) (const int *, const int *, const int *), int *, int *, int *, int *, int *, struct Pokemon **, const struct PokemonManager *)</code></h2>
+        <p><strong>Description:</strong> This function handles the hunting process where the player attempts to catch Pokémon. It interacts with various parameters to perform actions like attempting to catch a Pokémon, managing the player's inventory, and updating statistics.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+            <li><code>char *userName</code>: The name of the player.</li>
+            <li><code>struct Pokemon *pokemonList</code>: A pointer to the list of Pokémon the player has encountered or caught.</li>
+            <li><code>const int *inventory</code>: A pointer to the player's inventory of Poké Balls.</li>
+            <li><code>void (*ballUseCallback)(const int *, const int *, const int *)</code>: A callback function that updates the usage of Poké Balls.</li>
+            <li><code>int *caughtCount</code>: A pointer to the total count of Pokémon caught by the player.</li>
+            <li><code>int *seenCount</code>: A pointer to the total count of Pokémon seen by the player.</li>
+            <li><code>int *fleeCount</code>: A pointer to the number of Pokémon that have fled from the player.</li>
+            <li><code>int *totalAttempts</code>: A pointer to the total number of attempts made by the player to catch Pokémon.</li>
+            <li><code>int *remainingBalls</code>: A pointer to the number of remaining Poké Balls available to the player.</li>
+            <li><code>struct Pokemon **pokemonListPtr</code>: A pointer to the list of Pokémon that will be updated after the hunt.</li>
+            <li><code>const struct PokemonManager *manager</code>: A pointer to the manager that holds various function pointers for Pokémon-related operations.</li>
+        </ul>
+        <p><strong>Returns:</strong> Nothing (void).</p>
     </div>
     <div class="function-explanation">
-        <h2>5. <code>balls(const int *pokeBalls, const int *greatBall, const int *ultraBall)</code></h2>
-        <p>This function displays the user's current inventory of Poké Balls, Great Balls, and Ultra Balls. It shows how many of each ball the user has available to catch Pokémon.</p>
+        <h2><code>void balls(const int *, const int *, const int *)</code></h2>
+        <p><strong>Description:</strong> This function displays the player's current inventory of Poké Balls, giving information about how many of each type of ball the player possesses. It helps keep track of the player's available resources for catching Pokémon.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+            <li><code>const int *standardBalls</code>: A pointer to the number of standard Poké Balls.</li>
+            <li><code>const int *greatBalls</code>: A pointer to the number of Great Balls.</li>
+            <li><code>const int *ultraBalls</code>: A pointer to the number of Ultra Balls.</li>
+        </ul>
+        <p><strong>Returns:</strong> Nothing (void).</p>
     </div>
     <div class="function-explanation">
-        <h2>6. <code>add(struct Pokemon **head, const struct Pokemon *pokemons, const int *random)</code></h2>
-        <p>This function is responsible for adding a newly caught Pokémon to the player's linked list of Pokémon. The Pokémon is dynamically allocated and inserted at the end of the list. The function returns the updated head of the linked list.</p>
+        <h2><code>struct Pokemon *add(struct Pokemon **, const struct Pokemon *, const int *)</code></h2>
+        <p><strong>Description:</strong> This function adds a newly caught Pokémon to the end of the player's linked list of Pokémon. It allows the player to build their collection by adding new entries to the list.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+            <li><code>struct Pokemon **pokemonList</code>: A pointer to the list of Pokémon to which the new Pokémon will be added.</li>
+            <li><code>const struct Pokemon *newPokemon</code>: A pointer to the Pokémon structure representing the new Pokémon being added.</li>
+            <li><code>const int *pokemonCount</code>: A pointer to the total count of Pokémon caught by the player.</li>
+        </ul>
+        <p><strong>Returns:</strong> A pointer to the updated list of Pokémon.</p>
     </div>
     <div class="function-explanation">
-        <h2>7. <code>pokeCaught(...)</code></h2>
-        <p>The <code>pokeCaught</code> function is called when a Pokémon is successfully caught. It updates the catch and seen statistics, congratulates the player, and adds the Pokémon to the player's collection (linked list).</p>
-    </div>
-    <div class="function-explanation">
-        <h2>8. <code>pokeRan(...)</code></h2>
-        <p>This function handles the scenario where a Pokémon escapes the player's attempt to catch it. It updates the seen statistics and informs the player that the Pokémon has run away.</p>
-    </div>
-    <div class="function-explanation">
-        <h2>9. <code>pokemonCaught(const struct Pokemon *head)</code></h2>
-        <p>This function displays all the Pokémon the player has caught so far. It traverses the linked list of caught Pokémon and prints their names, along with the total number of Pokémon caught.</p>
-    </div>
-    <div class="function-explanation">
-        <h2>10. <code>stats(const int *caught, const int *seen)</code></h2>
-        <p>The <code>stats</code> function displays the player's catch statistics. It shows how many Pokémon the player has caught and seen, and calculates the player's catch rate based on the total caught and seen Pokémon.</p>
-    </div>
-    <div class="function-explanation">
-        <h2>11. <code>inventory(const int *pokeBall, const int *greatBall, const int *ultraBall)</code></h2>
-        <p>This function prints out the player's ball inventory, showing how many Poké Balls, Great Balls, and Ultra Balls the player has. This helps the player manage their resources for hunting Pokémon.</p>
+        <h2><code>void pokeCaught(struct Pokemon *, const int *, int *, int *, struct Pokemon **, const struct PokemonManager *)</code></h2>
+        <p><strong>Description:</strong> This function handles the process of catching a Pokémon. It updates the player's inventory and Pokémon list, increases the catch count, and performs other relevant updates.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+            <li><code>struct Pokemon *pokemonList</code>: The list of Pokémon the player has caught.</li>
+            <li><code>const int *ballInventory</code>: A pointer to the player's Poké Ball inventory.</li>
+            <li><code>int *caughtCount</code>: A pointer to the count of Pokémon the player has caught.</li>
+            <li><code>int *seenCount</code>: A pointer to the count of Pokémon the player has seen.</li>
+            <li><code>struct Pokemon **pokemonListPtr</code>: A pointer to the Pokémon list that will be updated.</li>
+            <li><code>const struct PokemonManager *manager</code>: A pointer to the Pokémon manager.</li>
+        </ul>
+        <p><strong>Returns:</strong> Nothing (void).</p>
     </div>
 
 <hr>
