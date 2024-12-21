@@ -3,6 +3,7 @@
 
 //C library
 #include <stdbool.h>
+#include <stdio.h>
 
 //macro definition for the maximum number of characters within the user's name
 #define MAX_NAME_LENGTH 101
@@ -16,6 +17,7 @@ struct Pokemon
     char name[MAX_NAME_LENGTH], type[MAX_NAME_LENGTH], region[MAX_NAME_LENGTH], dexEntry[MAX_DEX_ENTRY];
     struct PokemonStatus *data;
     struct Pokemon *next;
+    struct Pokemon *previous;
 };
 
 
@@ -32,11 +34,19 @@ struct PokemonManager
     struct Pokemon *(*addPtr) (struct Pokemon **, const struct Pokemon *, const int *);
     //function pointer which points to the sort function
     struct Pokemon *(*sortPtr) (struct Pokemon *, const struct PokemonManager *);
+    //function pointer which points to the reverse function
+    struct Pokemon *(*reversePtr) (struct Pokemon *, const struct PokemonManager *);
     //function pointer which points to the deleteNodes function
     struct Pokemon *(*deleteNodesPtr) (struct Pokemon *);
     //function pointer which points to the swap function
-    void (*swapPtr) (struct Pokemon *, struct Pokemon *, struct Pokemon *, struct Pokemon *);
+    void (*swapPtr) (struct Pokemon *, struct Pokemon *, struct Pokemon *);
 };
+
+//function prototype for assignPokemon which reads the information from poke.txt and assigns the array of type struct Pokemon
+void assignPokemon(FILE *, int *, struct Pokemon **);
+
+//function prototype for removeNewline which removes new-line characters from a string
+void removeNewline(char *);
 
 //function prototype for validRegion which is responsible for getting the user's input and returning a boolean value whether the user entered a valid Pokémon region it would like to play in
 bool validRegion(char *);
@@ -84,6 +94,12 @@ struct Pokemon *sort(struct Pokemon *, const struct PokemonManager *);
 struct Pokemon *deleteNodes(struct Pokemon *);
 
 //function prototype for swap which swaps two nodes within the linked list based on the user's selection of sorting criteria and order (ascending or descending)
-void swap(struct Pokemon *, struct Pokemon *, struct Pokemon *, struct Pokemon *);
+void swap(struct Pokemon *, struct Pokemon *, struct Pokemon *);
+
+//function prototype for reverse which reverses the linked list of Pokémon
+struct Pokemon *reverse(struct Pokemon *, const struct PokemonManager *);
+
+//function prototype for writeToFile which writes the linked list of Pokémon and stores the information in the file given by the file pointer
+void writeToFile(const struct Pokemon *);
 
 #endif
