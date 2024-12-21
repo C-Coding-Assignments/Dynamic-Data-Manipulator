@@ -8,6 +8,9 @@
 #include <stdlib.h>
 #include <time.h>
 
+//function pointer which points to the removeNewline function
+void (*removeNewlinePtr) (char *) = removeNewline;
+
 //function pointer which points to the balls function
 void (*ballsPtr) (const int *, const int *, const int *) = balls;
 
@@ -20,16 +23,25 @@ void (*pokeRanPtr) (struct Pokemon *, const int *, int *) = pokeRan;
 //function pointer which points to the sortMenu function
 int (*sortMenuPtr) () = sortMenu;
 
+//function definition for removeNewline which removes the new-line characters from the string and replaces them with the null character
+void removeNewline(char *name)
+{
+    //for loop which iterates through the string until the first null-character is being pointed to by ptr and replaces each new-line character with the null character
+    for (char *ptr = name; *ptr != '\0'; ptr++)
+        //selection statement which evaluates to true if *ptr points to a new-line character; if so, it replaces the new-line character with a null character
+        if (*ptr == '\n')
+            *ptr = '\0';
+}
+
 //function defintion for validRegion which determines if the user entered a valid region
 bool validRegion(char *region)
 {
     //converting first character in region to upper case
-    region[0] = toupper(region[0]);
+    *region = toupper(*region);
 
     //for loop which iterates through all characters within region, converts the remainder of characters to lower case, and converts any new-line characters to NULL characters
-    for (char *ptr = region + 1; *ptr != '\0'; *ptr = tolower(*ptr), ptr++)
-        if (*ptr == '\n')
-            *ptr = '\0';
+    for (char *ptr = region + 1; *ptr != '\0'; *ptr = tolower(*ptr), ptr++);
+    removeNewlinePtr(region);
 
     //returning true if the user entered a valid region; otherwise, returning false
     return (!strcmp(region, "Kanto") || !strcmp(region, "Johto") || !strcmp(region, "Hoenn") || !strcmp(region, "Sinnoh")) ? true : false;
@@ -54,21 +66,15 @@ void getSelection(char *input)
 {
     //getting the user's input
     printf("Selection > ");
-    fgets(input, sizeof(input), stdin);
+    fgets(input, MAX_DEX_ENTRY, stdin);
+    //removing the newline character from the user's input
+    removeNewlinePtr(input); 
 
     //for loop which iterates through the user's input, converts the first character in the user's input to upper case, converts the remainder of the user's input to lower case, and converts any new-line characters to NULL characters
     for (char *ptr = input; *ptr != '\0'; ptr++)
-    {
-        //selection statement which checks if ptr points to the first character within input
-        if (ptr == input)
-            *ptr = toupper(*ptr);
-        else
-            *ptr = tolower(*ptr);
-
-        if (*ptr == '\n')
-            *ptr = '\0';      
-    }
-}
+        //ternary expression which evaluates to true if ptr points to the first character in the user's input; if so, make the first character uppercase; otherwise, make the rest of the characters lowercase
+        (ptr == input) ? (*ptr = toupper(*ptr)) : (*ptr = tolower(*ptr));   
+}   
 
 //function definition for hunt which facilitates the Hunt menu option for catching Pokémon
 void hunt(char *region, struct Pokemon *pokemons, const int *size, void (*balls) (const int *, const int *, const int *), int *pokeBalls, int *greatBalls, int *ultraBalls, int *caught, int *seen, struct Pokemon **head, const struct PokemonManager *manager)
@@ -80,10 +86,7 @@ void hunt(char *region, struct Pokemon *pokemons, const int *size, void (*balls)
     int randomNum, catchNum = rand() % 100 + 1, selectedBall;
     char temp[MAX_DEX_ENTRY];
 
-    //for loop which iterates through the region and converts any new-line characters to NULL characters
-    for (char *ptr = region; *ptr != '\0'; ptr++)
-        if (*ptr == '\n')
-            *ptr = '\0';
+    removeNewlinePtr(region);
 
     //selection statement which evaluates to true if region is equal to Kanto; if so, generate a random number between 1 and 151 (inclusive)
     if (!strcmp(region, "Kanto"))
@@ -193,7 +196,7 @@ void balls(const int *pokeBalls, const int *greatBall, const int *ultraBall)
 struct Pokemon *add(struct Pokemon **head, const struct Pokemon *pokemons, const int *random)
 {
     //variable declaration and initialization using dynamic memory allocation
-    struct Pokemon *ptr = *head, *instance = malloc(sizeof(struct Pokemon));
+    struct Pokemon *ptr = *head, *prev = NULL, *instance = malloc(sizeof(struct Pokemon));
     
     //checking if the memory allocation was successful
     if (instance == NULL)
@@ -209,15 +212,20 @@ struct Pokemon *add(struct Pokemon **head, const struct Pokemon *pokemons, const
 
     //checking if the head of the linked list is NULL; if so, make the new instance the head
     if (*head == NULL)
+    {
         *head = instance;
+        instance->previous = NULL;
+    }    
 
     //if the head of the linked list is not NULL, traverse to the end of the linked list and add the new instance there
     else
     {
         //for loop which traverses ptr to point to the last item in the linked list
-        for (; ptr->next != NULL; ptr = ptr->next);
-        //adding the new instance to the end of the linked list by making the next of the last item point to the new instance
+        for (; ptr->next != NULL; prev = ptr, ptr = ptr->next);
+
+        //adding the new instance to the end of the linked list by making the second last item in the linked list point to instance and have instance->previous point to the previous last item in the linked list
         ptr->next = instance;
+        ptr->previous = prev;
     }    
 
     //returning the updated head of the linked list
@@ -274,9 +282,6 @@ void pokemonCaught(const struct Pokemon *head)
         //printing the total number of Pokémons caught
         printf("===============================\nTotal Pokémon Caught: %d\n\n", --counter);
     }    
-
-    //consuming input request to make program function as expected
-    getchar();
 }
 
 //function definition for stats which prints the user's statistics
@@ -307,7 +312,7 @@ void inventory(const int *pokeBall, const int *greatBall, const int *ultraBall)
 void displayPoke(const struct Pokemon *pokemons, const int *index)
 {
     //printing the specified Pokémon's information
-    printf("=========================================\n");
+    printf("\n=========================================\n");
     printf(" Pokémon Information\n");
     printf("=========================================\n");
     printf(" Name       : %s\n", pokemons[*index].name);
@@ -335,13 +340,14 @@ int sortMenu()
         printf("3. Sort by Type\n");
         printf("4. Sort by Pokémon Number (Ascending)\n");
         printf("5. Sort by Pokémon Number (Descending)\n");
+        printf("6. Reverse Current List\n");
         printf("============================================\n");
         printf("Enter your choice > ");
 
         //reading user input and converting it to an integer
         fgets(temp, sizeof(temp), stdin);
         selection = atoi(temp);
-    } while (selection < 1 || selection > 5);
+    } while (selection < 1 || selection > 6);
     
     //returning the selected sorting option
     return selection;
@@ -352,11 +358,15 @@ struct Pokemon *sort(struct Pokemon *head, const struct PokemonManager *manager)
 {
     //variable declarations and initializations using dynamically allocated memory 
     int selection;
-    struct Pokemon *ptr = head, *ptr2 = head, *temp = malloc(sizeof(struct Pokemon));
+    struct Pokemon *ptr = head, *ptr2 = head;
     
     //selection statement which evaluates to true if the head of the linked list is NULL, meaning there are no nodes within the linked list; if so, return NULL
     if (head == NULL)
+    {
+        printf("\nThere are no Pokémon to sort since you have not caught any yet.\n\n");
+
         return NULL;
+    }    
     
     //getting the user's input for which type of sorting to take place on the linked list
     selection = sortMenuPtr();
@@ -368,7 +378,7 @@ struct Pokemon *sort(struct Pokemon *head, const struct PokemonManager *manager)
         for (; ptr != NULL; ptr = ptr->next)
             for (ptr2 = ptr->next; ptr2 != NULL;)
                 //ternary expression which evaluates to true if the name of the Pokémon that ptr2 points to comes before the name of the Pokémon that ptr points to; if so, call the swap function to swap the Pokémon within the list; otherwise, traverse to the next node
-                (strcmp(ptr->name, ptr2->name) > 0) ? (manager->swapPtr(temp, ptr, ptr2, head)) : (ptr2 = ptr2->next);
+                (strcmp(ptr->name, ptr2->name) > 0) ? (manager->swapPtr(ptr, ptr2, head), ptr = head, ptr2 = ptr->next) : (ptr2 = ptr2->next);
 
         printf("\nYour Pokémon were successfully sorted lexicographically (ascending)!\n\n");
     }
@@ -380,7 +390,7 @@ struct Pokemon *sort(struct Pokemon *head, const struct PokemonManager *manager)
         for (; ptr != NULL; ptr = ptr->next)
             for (ptr2 = ptr->next; ptr2 != NULL;)
                 //ternary expression which evaluates to true if the name of the Pokémon that ptr points to comes before the name of the Pokémon that ptr2 points to; if so, call the swap function to swap the Pokémon within the list; otherwise, traverse to the next node
-                (strcmp(ptr2->name, ptr->name) > 0) ? (manager->swapPtr(temp, ptr, ptr2, head)) : (ptr2 = ptr2->next);
+                (strcmp(ptr2->name, ptr->name) > 0) ? (manager->swapPtr(ptr, ptr2, head), ptr = head, ptr2 = ptr->next) : (ptr2 = ptr2->next);
 
         printf("\nYour Pokémon were successfully sorted lexicographically (descending)!\n\n");
     }
@@ -392,7 +402,7 @@ struct Pokemon *sort(struct Pokemon *head, const struct PokemonManager *manager)
         for (; ptr != NULL; ptr = ptr->next)
             for (ptr2 = ptr->next; ptr2 != NULL;)
                 //ternary expression which evaluates to true if the type of the Pokémon that ptr2 points to comes before the type of the Pokémon that ptr points to; if so, call the swap function to swap the Pokémon within the list; otherwise, traverse to the next node
-                (strcmp(ptr->type, ptr2->type) > 0) ? (manager->swapPtr(temp, ptr, ptr2, head)) : (ptr2 = ptr2->next);
+                (strcmp(ptr->type, ptr2->type) > 0) ? (manager->swapPtr(ptr, ptr2, head), ptr = head, ptr2 = ptr->next) : (ptr2 = ptr2->next);
 
         printf("\nYour Pokémon were successfully sorted by region!\n\n");        
     }
@@ -404,10 +414,31 @@ struct Pokemon *sort(struct Pokemon *head, const struct PokemonManager *manager)
         for (; ptr != NULL; ptr = ptr->next)
             for (ptr2 = ptr->next; ptr2 != NULL;)
                 //ternary expression which evaluates to true if the Pokémon number associated with the Pokémon that ptr2 points to is greater than the Pokémon number associated with the Pokémon that ptr points to; if so, call the swap function to swap the Pokémon within the list; otherwise, traverse to the next node
-                (ptr2->pokemonNum > ptr->pokemonNum) ? (manager->swapPtr(temp, ptr, ptr2, head)) : (ptr2 = ptr2->next);
+                (ptr2->pokemonNum > ptr->pokemonNum) ? (manager->swapPtr(ptr, ptr2, head), ptr = head, ptr2 = ptr->next) : (ptr2 = ptr2->next);
 
         printf("\nYour Pokémon were successfully sorted number (ascending)!\n\n");        
     }
+
+    //selection statement which evaluates to true if the user requested to sort their caught Pokémon by Pokémon number, in descending order
+    else if (selection == 5)
+    {
+        //nested for loop responsible for swapping nodes within the linked list
+        for (; ptr != NULL; ptr = ptr->next)
+            for (ptr2 = ptr->next; ptr2 != NULL;)
+                //ternary expression which evaluates to true if the Pokémon number associated with the Pokémon that ptr2 points to is greater than the Pokémon number associated with the Pokémon that ptr points to; if so, call the swap function to swap the Pokémon within the list; otherwise, traverse to the next node
+                (ptr2->pokemonNum < ptr->pokemonNum) ? (manager->swapPtr(ptr, ptr2, head), ptr = head, ptr2 = ptr->next) : (ptr2 = ptr2->next);
+
+        printf("\nYour Pokémon were successfully sorted number (ascending)!\n\n");        
+    }
+
+    //selection statement which evaluates to true if the user requested to reverse the order of their caught Pokémon
+    else if (selection == 6)
+    {
+        //calling the reverse function to reverse the Pokémon within the list
+        head = manager->reversePtr(head, manager);
+
+        printf("\nYour Pokémon were successfully sorted in reverse!\n\n");
+    }    
 
     //selection statement which evaluates to true if the user requested to sort their caught Pokémon by Pokémon number, in descending order
     else
@@ -416,7 +447,7 @@ struct Pokemon *sort(struct Pokemon *head, const struct PokemonManager *manager)
         for (; ptr != NULL; ptr = ptr->next)
             for (ptr2 = ptr->next; ptr2 != NULL;)
                 //ternary expression which evaluates to true if the Pokémon number associated with the Pokémon that ptr2 points to is less than the Pokémon number associated with the Pokémon that ptr points to; if so, call the swap function to swap the Pokémon within the list; otherwise, traverse to the next node
-                (ptr->pokemonNum > ptr2->pokemonNum) ? (manager->swapPtr(temp, ptr, ptr2, head)) : (ptr2 = ptr2->next);
+                (ptr->pokemonNum > ptr2->pokemonNum) ? (manager->swapPtr(ptr, ptr2, head), ptr = head, ptr2 = ptr->next) : (ptr2 = ptr2->next);
 
         printf("\nYour Pokémon were successfully sorted number (descending)!\n\n");        
     }
@@ -444,8 +475,11 @@ struct Pokemon *deleteNodes(struct Pokemon *head)
 }
 
 //function definition for swap which facilitates the sorting of the linked list
-void swap(struct Pokemon *temp, struct Pokemon *ptr, struct Pokemon *ptr2, struct Pokemon *head)
+void swap(struct Pokemon *ptr, struct Pokemon *ptr2, struct Pokemon *head)
 {
+    //variable declaration and initialization using dynamically allocated memory
+    struct Pokemon *temp = malloc(sizeof(struct Pokemon));
+
     //swapping the data members of the two nodes
     strcpy(temp->name, ptr->name);
     strcpy(temp->type, ptr->type);
@@ -456,7 +490,7 @@ void swap(struct Pokemon *temp, struct Pokemon *ptr, struct Pokemon *ptr2, struc
 
     //swapping the data members of the two nodes
     strcpy(ptr->name, ptr2->name);
-    strcpy(ptr->type, ptr2->type);
+    strcpy(ptr->type, ptr2->type); 
     strcpy(ptr->dexEntry, ptr2->dexEntry);
     strcpy(ptr->region, ptr2->region);
     ptr->pokemonNum = ptr2->pokemonNum;
@@ -470,7 +504,57 @@ void swap(struct Pokemon *temp, struct Pokemon *ptr, struct Pokemon *ptr2, struc
     ptr2->pokemonNum = temp->pokemonNum;
     ptr2->catchPercentage = temp->catchPercentage;
 
-    //updating ptr to point to the head and for ptr2 to point to the next node that ptr points to
-    ptr = head;
-    ptr2 = ptr->next;
+    //freeing the dynamically allocated memory for the temporary node
+    free(temp);
 }
+
+//function definition for reverse which reverses the nodes within the doubly linked list
+struct Pokemon *reverse(struct Pokemon *head, const struct PokemonManager *manager)
+{
+    //variable declarations and initializations
+    struct Pokemon *ptr = head, *ptr2 = head, *temp = malloc(sizeof(struct Pokemon));
+    int nodes = 1;
+
+    //for loop which counts the number of nodes in the list
+    for (; ptr2->next != NULL; ptr2 = ptr2->next, nodes++);
+
+    //for loop which iterates through the nodes in the list, swaps the list to be in reverse, reassigns the pointers, and frees the dynamically allocated memory
+    for (int i = 0; i < nodes / 2; manager->swapPtr(ptr, ptr2, head), ptr = ptr->next, ptr2 = ptr2->previous, free(temp), i++);
+
+    //returning the head of the reversed linked list
+    return head;
+}
+
+void writeToFile(const struct Pokemon *head)
+{
+    //function declarations
+    FILE *fptr;
+    const struct Pokemon *ptr = head;
+
+    //opening the file in write mode
+    fptr = fopen("pokemons.txt", "w");
+
+    //writing the header row to the file
+    fprintf(fptr, "==========================================================================================================================================================================================================================================\n");
+    fprintf(fptr, "                                Pokémon List                                  \n");
+    fprintf(fptr, "==========================================================================================================================================================================================================================================\n");
+
+    //for loop which iterates through the linked list and writes each of the user's caught Pokémon to the file
+    for (; ptr != NULL; ptr = ptr->next)
+    {
+        //printing Pokémons' information to the file
+        fprintf(fptr, "| %-5s | %-20s | %-12s | %-12s | %-10s | %-35s |\n", "Num", "Name", "Type", "Region", "Catch %", "Dex Entry");
+        fprintf(fptr, "==========================================================================================================================================================================================================================================\n");
+        fprintf(fptr, "| %-5d | %-20s | %-12s | %-12s | %-10d | %-35s |\n", ptr->pokemonNum, ptr->name, ptr->type, ptr->region, ptr->catchPercentage, ptr->dexEntry);
+        fprintf(fptr, "| %-5s | %-20s | %-12s | %-12s | %-10s | Seen: %-4d  Caught: %-4d             |\n", "", "", "", "", "", ptr->data->seen, ptr->data->caught);
+        fprintf(fptr, "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+    }
+
+    //printing the footer to the file
+    fprintf(fptr, "==========================================================================================================================================================================================================================================\n");
+    fprintf(fptr, "                            End of Pokémon List                               \n");
+    fprintf(fptr, "==========================================================================================================================================================================================================================================\n");
+
+    //closing the file
+    fclose(fptr);
+}   
