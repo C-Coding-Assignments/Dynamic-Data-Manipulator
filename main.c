@@ -13,11 +13,13 @@ int main()
     //function declarations and initializations
     FILE *fptr;
     char name[MAX_NAME_LENGTH], region[MAX_NAME_LENGTH], temp[MAX_DEX_ENTRY + 1];
-    int size, returnSize, pokeBalls = 10, greatBalls = 10, ultraBalls = 10, caught = 0, seen = 0;
+    int returnSize, size, pokeBalls = 10, greatBalls = 10, ultraBalls = 10, caught = 0, seen = 0;
     struct Pokemon *pokemons, *head = NULL;
-    bool nameInput = false;
-    struct PokemonManager manager = {add, sort, deleteNodes, swap};
+    bool nameInput = true;
+    struct PokemonManager manager = {add, sort, reverse, deleteNodes, swap};
 
+    //function pointer which points to the removeNewline function
+    void (*removeNewlinePtr) (char *) = removeNewline;
     //function pointer which points to the validRegion function
     bool (*validRegionPtr) (char *) = validRegion;
     //function pointer which points to the menu function
@@ -36,9 +38,12 @@ int main()
     void (*inventoryPtr) (const int *, const int *, const int *) = inventory;
     //function pointer which points to displayPoke function
     void (*displayPokePtr) (const struct Pokemon *, const int *) = displayPoke;
+    //function pointer which points to writeToFile function
+    void (*writeToFilePtr) (const struct Pokemon *) = writeToFile;
 
     //opening the poke.txt file and reading the Pokémon data
     fptr = fopen("poke.txt", "r");
+
     //selection statement which checks if the file opened in read mode successfully
     if (fptr == NULL)
     {
@@ -48,6 +53,7 @@ int main()
 
     //reading the number of Pokémon entries from the file and validating the input
     returnSize = fscanf(fptr, "%d", &size);
+
     //selection statement which evaluates to true if the file read in more or less than one element
     if (returnSize != 1)
     {
@@ -57,6 +63,7 @@ int main()
 
     //allocating memory for the Pokémon array
     pokemons = malloc(sizeof(struct Pokemon) * size);
+
     //selection statement which evaluates to true if memory was not successfully allocated for the dynamic Pokémon array
     if (pokemons == NULL)
     {
@@ -79,6 +86,7 @@ int main()
     
         //reading the data from the file
         returnSize = sscanf(temp, "%d,%99[^,],%99[^,],%99[^,],%d,%[^\n]", &pokemons[i].pokemonNum, pokemons[i].name, pokemons[i].type, pokemons[i].region, &pokemons[i].catchPercentage, pokemons[i].dexEntry);
+        
         //selection statement which returns true if the more or less than six elements were read from the file
         if (returnSize != 6)
         {
@@ -88,6 +96,7 @@ int main()
 
         //allocating memory for the status data of each Pokémon
         pokemons[i].data = malloc(sizeof(struct PokemonStatus));
+        
         //selection statement which evaluates to true if memory was not successfully allocated for the status data of each Pokémon
         if (pokemons[i].data == NULL)
         {
@@ -106,9 +115,8 @@ int main()
     //getting the user's name and manipulating the string to remove the new-line character and replace that with a NULL character
     printf("What's your name, trainer? > ");
     fgets(name, sizeof(name), stdin);
-    for (char *ptr = name; *ptr != '\0'; ptr++)
-        if (*ptr == '\n')
-            *ptr = '\0';
+    //calling the removeNewline function to remove the new-line character and replace that with a NULL character
+    removeNewlinePtr(name);
 
     //welcoming the user to the application
     printf("\nWelcome, %s, to the Programming I Safari Zone!\nYou'll have 30 chances to catch Pokemon, make them count!\n", name);
@@ -119,6 +127,8 @@ int main()
     {
         printf("Enter Kanto, Johto, Hoenn, or Sinnoh > ");
         fgets(region, sizeof(region), stdin);
+        //calling the removeNewline function to remove the new-line character and replace that with a NULL character
+        removeNewlinePtr(region);
     } while (!validRegionPtr(region));
 
     printf("\nTraveling to %s\n", region);
@@ -158,6 +168,14 @@ int main()
         
         //selection statement which evaluates to true if the user enters any other string that does not match the ones above
         else
+        {
+            nameInput = false;
+
+            //for loop which iterates through all characters in the user's input and converts them to different cases
+            for (char *ptr = temp; *ptr != '\0'; ptr++)
+                //ternary expression which evaluates to try if ptr points to the first character in temp; if so, convert the first character to uppercase; otherwise, convert the rest of the characters to lowercase
+                (ptr == temp) ? (*ptr = toupper(*ptr)) : (*ptr = tolower(*ptr));
+        
             //for loop which iterates through all elements within the pokemons function
             for (int i = 0; i < size; i++)
                 //selection statement which evaluates to true if the user entered a Pokemon's name
@@ -166,11 +184,16 @@ int main()
                     //calling the displayPoke function which will print out information about the Pokemon that the user entered
                     displayPokePtr(pokemons, &i);  
                     nameInput = true;
+                    break;
                 }  
 
-        //ternary expression which evaluates to true if name input is equal to true; if so, print an error message and make nameInput false; otherwise, continue
-        (nameInput) ? (printf("Invalid entry, try again.\n\n"), nameInput = false) : (1);                      
+            if (!nameInput)
+                printf("Invalid entry, try again.\n\n");        
+        }                     
     } while (strcmp(temp, "Exit"));
+
+    //calling the writeToFile function to write the user's caught Pokémon to a file named "pokemons.txt" for future reference
+    writeToFile(head);
 
     //closing the application with a farewell message and freeing the dynamically allocated memory
     printf("\nThanks for playing, %s!\n", name);
