@@ -11,6 +11,25 @@
   <p>
     This advanced C programming project showcases mastery of complex programming concepts, including data manipulation, pointer arithmetic, file handling, and dynamic memory management. The project consists of three intricately linked programs, each designed to demonstrate practical problem-solving and efficient algorithm design in C.
   </p>
+  <h2>How to Run the Code</h2>
+<p>To make it easy for you to run the code, I’ve created an account on Online GDB, a convenient online compiler. Below are the login details:</p>
+<ul>
+  <li><strong>Email:</strong> egarrett055@gmail.com</li>
+  <li><strong>Password:</strong> tempUser</li>
+</ul>
+<p>Follow these steps to run the program:</p>
+<ol>
+  <li>Click <a href="https://www.onlinegdb.com/edit/RqjKUJv_d" target="_blank">here</a> to open the project.</li>
+  <li>Enter the login credentials provided above (email and password).</li>
+  <li>On the left side of the page, click on <strong>"My Projects"</strong>.</li>
+  <li>Find and select the project titled <strong>"Dynamic Data Manipulator"</strong>.</li>
+  <li>Click on the <strong>"Dynamic Data Manipulator"</strong> project to open it.</li>
+  <li>Inside the project, locate and click the file named <strong>"main.c"</strong>.</li>
+  <li>Click the <strong>"Run"</strong> button to execute the program.</li>
+  <li>If prompted, select "C" from the "Language" dropdown near the top of the screen to proceed.</li>
+  <li>The program’s output will appear at the bottom of the screen, allowing you to experience the results of my work.</li>
+</ol>
+<p>Enjoy exploring the program!</p>
 </header>
 
 <hr>
@@ -110,6 +129,35 @@
 
 <h2>Function Definitions</h2>
     <div class="function-explanation">
+    <h2><code>void initializeListManager(struct ListManager *manager)</code></h2>
+    <p><strong>Description:</strong> This function initializes an instance of the <code>ListManager</code> structure by assigning function pointers to the appropriate functions that will manipulate the linked list of Pokémon. It sets up the necessary functions for adding, sorting, reversing, deleting nodes, and swapping Pokémon within the list.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>struct ListManager *manager</code>: A pointer to a <code>ListManager</code> structure that will be initialized.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
+
+<div class="function-explanation">
+    <h2><code>void initializeMenuManager(struct MenuManager *manager)</code></h2>
+    <p><strong>Description:</strong> This function initializes an instance of the <code>MenuManager</code> structure by assigning function pointers to the appropriate menu functions. It sets up the necessary functions for navigating the Pokémon game menu, managing hunting, displaying Pokémon caught, stats, inventory, and writing data to a file.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>struct MenuManager *manager</code>: A pointer to a <code>MenuManager</code> structure that will be initialized.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
+
+<div class="function-explanation">
+    <h2><code>void removeNewline(char *name)</code></h2>
+    <p><strong>Description:</strong> This function removes any new-line characters from the given string and replaces them with a null character (<code>\0</code>). This is useful for cleaning up user input or file data that may have trailing new-line characters.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>char *name</code>: A pointer to the string from which the new-line characters will be removed.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
+    <div class="function-explanation">
         <h2><code>bool validRegion(char *)</code></h2>
         <p><strong>Description:</strong> This function checks whether the provided region string is a valid Pokémon region. It allows the user to specify a region in the game, ensuring that only valid regions are selected.</p>
         <p><strong>Parameters:</strong></p>
@@ -134,24 +182,21 @@
         <p><strong>Returns:</strong> Nothing (void).</p>
     </div>
     <div class="function-explanation">
-        <h2><code>void hunt(char *, struct Pokemon *, const int *, void (*) (const int *, const int *, const int *), int *, int *, int *, int *, int *, struct Pokemon **, const struct PokemonManager *)</code></h2>
-        <p><strong>Description:</strong> This function handles the hunting process where the player attempts to catch Pokémon. It interacts with various parameters to perform actions like attempting to catch a Pokémon, managing the player's inventory, and updating statistics.</p>
-        <p><strong>Parameters:</strong></p>
-        <ul>
-            <li><code>char *userName</code>: The name of the player.</li>
-            <li><code>struct Pokemon *pokemonList</code>: A pointer to the list of Pokémon the player has encountered or caught.</li>
-            <li><code>const int *inventory</code>: A pointer to the player's inventory of Poké Balls.</li>
-            <li><code>void (*ballUseCallback)(const int *, const int *, const int *)</code>: A callback function that updates the usage of Poké Balls.</li>
-            <li><code>int *caughtCount</code>: A pointer to the total count of Pokémon caught by the player.</li>
-            <li><code>int *seenCount</code>: A pointer to the total count of Pokémon seen by the player.</li>
-            <li><code>int *fleeCount</code>: A pointer to the number of Pokémon that have fled from the player.</li>
-            <li><code>int *totalAttempts</code>: A pointer to the total number of attempts made by the player to catch Pokémon.</li>
-            <li><code>int *remainingBalls</code>: A pointer to the number of remaining Poké Balls available to the player.</li>
-            <li><code>struct Pokemon **pokemonListPtr</code>: A pointer to the list of Pokémon that will be updated after the hunt.</li>
-            <li><code>const struct PokemonManager *manager</code>: A pointer to the manager that holds various function pointers for Pokémon-related operations.</li>
-        </ul>
-        <p><strong>Returns:</strong> Nothing (void).</p>
-    </div>
+    <h2><code>void hunt(char *region, struct Pokemon *pokemons, const int *size, void (*balls) (const int *, const int *, const int *), int *pokeBalls, int *greatBalls, int *ultraBalls, int *caught, int *seen, struct Pokemon **head, const struct ListManager *manager)</code></h2>
+    <p><strong>Description:</strong> This function facilitates the Hunt menu option for catching Pokémon. It handles the process of encountering Pokémon from a specific region, selecting a Poké Ball, and attempting to catch the Pokémon. The function uses a random number generator to determine the encounter and Pokémon statistics, and it updates the player's Pokémon collection based on the outcome of each catch attempt.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>char *region</code>: A pointer to a string containing the region where the Pokémon is encountered (e.g., "Kanto", "Johto").</li>
+        <li><code>struct Pokemon *pokemons</code>: A pointer to an array of Pokémon structures, where each Pokémon has specific data such as catch percentage and individual values.</li>
+        <li><code>const int *size</code>: A pointer to the total number of Pokémon in the game.</li>
+        <li><code>void (*balls) (const int *, const int *, const int *)</code>: A function pointer to display the number of Poké Balls, Great Balls, and Ultra Balls the player has.</li>
+        <li><code>int *pokeBalls</code>, <code>int *greatBalls</code>, <code>int *ultraBalls</code>: Pointers to integers representing the number of each type of Poké Ball the player has left.</li>
+        <li><code>int *caught</code>, <code>int *seen</code>: Pointers to integers tracking the number of Pokémon caught and seen.</li>
+        <li><code>struct Pokemon **head</code>: A pointer to the head of the linked list of caught Pokémon.</li>
+        <li><code>const struct ListManager *manager</code>: A pointer to a ListManager instance containing function pointers for manipulating the linked list of Pokémon.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
     <div class="function-explanation">
         <h2><code>void balls(const int *, const int *, const int *)</code></h2>
         <p><strong>Description:</strong> This function displays the player's current inventory of Poké Balls, giving information about how many of each type of ball the player possesses. It helps keep track of the player's available resources for catching Pokémon.</p>
@@ -175,19 +220,133 @@
         <p><strong>Returns:</strong> A pointer to the updated list of Pokémon.</p>
     </div>
     <div class="function-explanation">
-        <h2><code>void pokeCaught(struct Pokemon *, const int *, int *, int *, struct Pokemon **, const struct PokemonManager *)</code></h2>
-        <p><strong>Description:</strong> This function handles the process of catching a Pokémon. It updates the player's inventory and Pokémon list, increases the catch count, and performs other relevant updates.</p>
-        <p><strong>Parameters:</strong></p>
-        <ul>
-            <li><code>struct Pokemon *pokemonList</code>: The list of Pokémon the player has caught.</li>
-            <li><code>const int *ballInventory</code>: A pointer to the player's Poké Ball inventory.</li>
-            <li><code>int *caughtCount</code>: A pointer to the count of Pokémon the player has caught.</li>
-            <li><code>int *seenCount</code>: A pointer to the count of Pokémon the player has seen.</li>
-            <li><code>struct Pokemon **pokemonListPtr</code>: A pointer to the Pokémon list that will be updated.</li>
-            <li><code>const struct PokemonManager *manager</code>: A pointer to the Pokémon manager.</li>
-        </ul>
-        <p><strong>Returns:</strong> Nothing (void).</p>
-    </div>
+    <h2><code>struct Pokemon *pokeCaught(struct Pokemon *pokemons, const int *random, int *caught, int *seen, struct Pokemon **head, const struct ListManager *manager)</code></h2>
+    <p><strong>Description:</strong> This function facilitates the process of the user successfully catching a Pokémon. It prints a congratulatory message, updates the caught and seen counters for the Pokémon, and adds the caught Pokémon to the linked list of caught Pokémon.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>struct Pokemon *pokemons</code>: A pointer to an array of Pokémon structures, where each Pokémon has specific data such as name, caught, and seen counters.</li>
+        <li><code>const int *random</code>: A pointer to the index of the Pokémon that has been successfully caught.</li>
+        <li><code>int *caught</code>, <code>int *seen</code>: Pointers to integers tracking the number of Pokémon caught and seen by the user.</li>
+        <li><code>struct Pokemon **head</code>: A pointer to the head of the linked list of caught Pokémon.</li>
+        <li><code>const struct ListManager *manager</code>: A pointer to a ListManager instance containing function pointers for manipulating the linked list of Pokémon.</li>
+    </ul>
+    <p><strong>Returns:</strong> The updated head of the linked list of caught Pokémon.</p>
+</div>
+<div class="function-explanation">
+    <h2><code>void pokeRan(struct Pokemon *pokemons, const int *random, int *seen)</code></h2>
+    <p><strong>Description:</strong> This function handles the scenario when a Pokémon runs away from the user's attempt to catch it. It prints a message indicating the Pokémon fled and increments the 'seen' counter for the Pokémon.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>struct Pokemon *pokemons</code>: A pointer to an array of Pokémon structures representing the available Pokémon.</li>
+        <li><code>const int *random</code>: A pointer to the index of the randomly selected Pokémon that ran away.</li>
+        <li><code>int *seen</code>: A pointer to the total number of Pokémon seen.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
+
+<div class="function-explanation">
+    <h2><code>void pokemonCaught(const struct Pokemon *head, int *selection)</code></h2>
+    <p><strong>Description:</strong> This function displays the list of Pokémon that the user has caught and allows the user to select between viewing detailed information about the caught Pokémon or just listing their names. It also provides an option to exit the menu.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>const struct Pokemon *head</code>: A pointer to the head of the linked list of caught Pokémon.</li>
+        <li><code>int *selection</code>: A pointer to the user's selection for how they wish to view their caught Pokémon (view details, list caught Pokémon, or exit).</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
+
+<div class="function-explanation">
+    <h2><code>void stats(const int *caught, const int *seen)</code></h2>
+    <p><strong>Description:</strong> This function prints the user's statistics, including the number of Pokémon caught and seen, and calculates the catch rate if more than one Pokémon has been caught.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>const int *caught</code>: A pointer to the total number of Pokémon caught by the user.</li>
+        <li><code>const int *seen</code>: A pointer to the total number of Pokémon seen by the user.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
+<div class="function-explanation">
+    <h2><code>void inventory(const int *pokeBall, const int *greatBall, const int *ultraBall)</code></h2>
+    <p><strong>Description:</strong> This function displays the user's inventory of Poké Balls, including Poke Balls, Great Balls, and Ultra Balls. The inventory is presented in a neat, tabular format.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>const int *pokeBall</code>: A pointer to the number of Poké Balls the user has.</li>
+        <li><code>const int *greatBall</code>: A pointer to the number of Great Balls the user has.</li>
+        <li><code>const int *ultraBall</code>: A pointer to the number of Ultra Balls the user has.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
+
+<div class="function-explanation">
+    <h2><code>void displayPoke(const struct Pokemon *pokemons, const int *index)</code></h2>
+    <p><strong>Description:</strong> This function displays detailed information about a specific Pokémon, identified by the index passed to it. It prints the Pokémon's name, type, and Dex entry.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>const struct Pokemon *pokemons</code>: A pointer to the array of Pokémon.</li>
+        <li><code>const int *index</code>: A pointer to the index of the Pokémon whose information is to be displayed.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
+
+<div class="function-explanation">
+    <h2><code>int sortMenu()</code></h2>
+    <p><strong>Description:</strong> This function displays a menu that allows the user to choose how they would like to sort the Pokémon list. The menu offers various sorting options, including lexicographical sorting, sorting by type, and sorting by Pokémon number.</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Returns:</strong> The user's sorting selection as an integer (1 to 6).</p>
+</div>
+
+<div class="function-explanation">
+    <h2><code>struct Pokemon *sort(struct Pokemon *head, const struct ListManager *manager)</code></h2>
+    <p><strong>Description:</strong> This function sorts the linked list of Pokémon based on the user's selection from the sorting menu. It allows sorting by name (lexicographically ascending or descending), type, and Pokémon number, as well as reversing the list. It utilizes a helper function for swapping nodes in the linked list and updates the head pointer when necessary.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>struct Pokemon *head</code>: A pointer to the head of the linked list of Pokémon.</li>
+        <li><code>const struct ListManager *manager</code>: A pointer to a ListManager structure responsible for managing list operations such as swapping and reversing nodes.</li>
+    </ul>
+    <p><strong>Returns:</strong> The head pointer of the sorted (or reversed) linked list.</p>
+</div>
+<div class="function-explanation">
+    <h2><code>struct Pokemon *deleteNodes(struct Pokemon *head)</code></h2>
+    <p><strong>Description:</strong> This function traverses the linked list of Pokémon and frees the dynamically allocated memory for each node. After all nodes are freed, it returns <code>NULL</code> to indicate that the list is empty.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>struct Pokemon *head</code>: A pointer to the head of the linked list of Pokémon.</li>
+    </ul>
+    <p><strong>Returns:</strong> <code>NULL</code>, indicating that the list has been deleted.</p>
+</div>
+
+<div class="function-explanation">
+    <h2><code>void swap(struct Pokemon *ptr, struct Pokemon *ptr2, struct Pokemon *head)</code></h2>
+    <p><strong>Description:</strong> This function swaps the data between two nodes in the linked list. It facilitates sorting by swapping the Pokémon information between the nodes pointed to by <code>ptr</code> and <code>ptr2</code>.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>struct Pokemon *ptr</code>: A pointer to the first node in the linked list to swap.</li>
+        <li><code>struct Pokemon *ptr2</code>: A pointer to the second node in the linked list to swap.</li>
+        <li><code>struct Pokemon *head</code>: A pointer to the head of the linked list, though it is not used directly in this function.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
+
+<div class="function-explanation">
+    <h2><code>struct Pokemon *reverse(struct Pokemon *head, const struct ListManager *manager)</code></h2>
+    <p><strong>Description:</strong> This function reverses the order of nodes in the doubly linked list of Pokémon. It copies the Pokémon data to an array and then updates the list in reverse order by swapping the data between the nodes.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>struct Pokemon *head</code>: A pointer to the head of the linked list of Pokémon.</li>
+        <li><code>const struct ListManager *manager</code>: A pointer to the ListManager structure responsible for managing list operations.</li>
+    </ul>
+    <p><strong>Returns:</strong> The head pointer of the reversed linked list.</p>
+</div>
+
+<div class="function-explanation">
+    <h2><code>void writeToFile(const struct Pokemon *head)</code></h2>
+    <p><strong>Description:</strong> This function writes the details of the Pokémon in the linked list to a file called <code>pokemons.txt</code>. The file contains a header, followed by the Pokémon data in a table format, and ends with a footer.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>const struct Pokemon *head</code>: A pointer to the head of the linked list of Pokémon.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
 
 <hr>
 
