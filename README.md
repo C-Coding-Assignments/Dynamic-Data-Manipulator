@@ -69,23 +69,28 @@
         </ul>
     </div>
     <div class="structure-explanation">
-        <h2>2. <code>struct PokemonStatus</code></h2>
-        <p>This structure defines the status of a Pokémon, indicating how many times it has been caught and seen:</p>
-        <ul>
-            <li><code>caught</code>: The number of times the Pokémon has been caught.</li>
-            <li><code>seen</code>: The number of times the Pokémon has been seen by the player.</li>
-        </ul>
-    </div>
+    <h2>1. <code>struct PokemonStatus</code></h2>
+    <p>This structure defines the status of a Pokémon, providing details about its visibility, attributes, and individual values:</p>
+    <ul>
+        <li><code>caught</code>: The number of times the Pokémon has been caught.</li>
+        <li><code>seen</code>: The number of times the Pokémon has been seen by the player.</li>
+        <li><code>attackIV</code>: The individual value (IV) representing the Pokémon's attack potential.</li>
+        <li><code>defenseIV</code>: The individual value (IV) representing the Pokémon's defense potential.</li>
+        <li><code>staminaIV</code>: The individual value (IV) representing the Pokémon's stamina potential.</li>
+        <li><code>percentIV</code>: A calculated percentage representing the overall strength of the Pokémon based on its IVs.</li>
+    </ul>
+</div>
     <div class="structure-explanation">
-        <h2>3. <code>struct PokemonManager</code></h2>
-        <p>This structure manages the operations related to the linked list of caught Pokémon. It includes function pointers for various actions:</p>
-        <ul>
-            <li><code>addPtr</code>: A function pointer to the <code>add</code> function, responsible for adding new Pokémon to the list.</li>
-            <li><code>sortPtr</code>: A function pointer to the <code>sort</code> function, responsible for sorting the Pokémon list.</li>
-            <li><code>deleteNodesPtr</code>: A function pointer to the <code>deleteNodes</code> function, responsible for deleting nodes from the list.</li>
-            <li><code>swapPtr</code>: A function pointer to the <code>swap</code> function, responsible for swapping Pokémon in the list based on sorting criteria.</li>
-        </ul>
-    </div>
+    <h2>1. <code>struct ListManager</code></h2>
+    <p>This structure contains function pointers responsible for managing and manipulating the linked list of Pokémon. Each function pointer performs a specific operation on the linked list:</p>
+    <ul>
+        <li><code>addPtr</code>: A function pointer pointing to the <code>add</code> function, which adds a new Pokémon to the linked list.</li>
+        <li><code>sortPtr</code>: A function pointer pointing to the <code>sort</code> function, which sorts the Pokémon in the linked list.</li>
+        <li><code>reversePtr</code>: A function pointer pointing to the <code>reverse</code> function, which reverses the order of Pokémon in the linked list.</li>
+        <li><code>deleteNodesPtr</code>: A function pointer pointing to the <code>deleteNodes</code> function, which deletes nodes from the linked list.</li>
+        <li><code>swapPtr</code>: A function pointer pointing to the <code>swap</code> function, which swaps two Pokémon within the linked list.</li>
+    </ul>
+</div>
 
 <hr>
 
