@@ -91,6 +91,20 @@
         <li><code>swapPtr</code>: A function pointer pointing to the <code>swap</code> function, which swaps two Pokémon within the linked list.</li>
     </ul>
 </div>
+<div class="structure-explanation">
+    <h2>1. <code>struct MenuManager</code></h2>
+    <p>This structure contains function pointers responsible for facilitating menu operations and calling various functions when the user interacts with the menu or exits the program. Each function pointer represents a specific operation or menu functionality:</p>
+    <ul>
+        <li><code>menuPtr</code>: A function pointer pointing to the <code>menu</code> function, which displays the main menu to the user and handles their selections.</li>
+        <li><code>huntPtr</code>: A function pointer pointing to the <code>hunt</code> function, which manages Pokémon hunting operations, allowing the user to search for and encounter Pokémon.</li>
+        <li><code>pokemonCaughtPtr</code>: A function pointer pointing to the <code>sortMenu</code> function, which handles operations related to sorting Pokémon caught by the user.</li>
+        <li><code>statsPtr</code>: A function pointer pointing to the <code>stats</code> function, which displays statistical information such as total Pokémon seen and caught.</li>
+        <li><code>inventoryPtr</code>: A function pointer pointing to the <code>inventory</code> function, which shows the user's inventory details, including resources like Poké Balls.</li>
+        <li><code>displayPokePtr</code>: A function pointer pointing to the <code>displayPoke</code> function, which displays detailed information about individual Pokémon.</li>
+        <li><code>writeToFilePtr</code>: A function pointer pointing to the <code>writeToFile</code> function, which saves the Pokémon data to a file for future reference.</li>
+    </ul>
+</div>
+
 
 <hr>
 
