@@ -8,15 +8,15 @@
 #define MAX_NAME_LENGTH 101
 //macro definition for the maximum number of characters within the Pokémon's dex entry
 #define MAX_DEX_ENTRY 10001
-//macro definition for the number of letters in the alphabet
+//macro definition for the total number possible characters found in a Pokémon's name
 #define ALPHABET_SIZE 56
 //macro definition for the ASCII value of an apostrophe
 #define APOSTROPHE 39
 //macro definition for the ASCII value of a period
 #define PERIOD 46
-//macro definition for the character digit two character, '2'
+//macro definition for the digit two character, '2'
 #define TWO '2'
-//macro definition for the character hyphen character, '-'
+//macro definition for the hyphen character, '-'
 #define HYPHEN '-'
 //macro definition for the maximum number of Pokémon in the Kanto region
 #define KANTO_MAX_POKEMON 151
