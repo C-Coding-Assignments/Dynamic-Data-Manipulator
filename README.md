@@ -123,6 +123,26 @@
         <li><code>writeToFilePtr</code>: A function pointer pointing to the <code>writeToFile</code> function, which saves the Pokémon data to a file for future reference.</li>
     </ul>
 </div>
+<div class="structure-explanation">
+    <h2>1. <code>struct Trie</code></h2>
+    <p>This structure defines a Trie for storing characters within a string efficiently. It contains:</p>
+    <ul>
+        <li><code>children[ALPHABET_SIZE]</code>: An array of pointers to child Tries, where each child corresponds to a character in the string.</li>
+        <li><code>isEndOfWord</code>: A boolean indicating whether the current node marks the end of a word.</li>
+        <li><code>index</code>: An integer used to store the index of the word, potentially for later reference or retrieval.</li>
+    </ul>
+</div>
+<div class="structure-explanation">
+    <h2>2. <code>struct TrieManager</code></h2>
+    <p>This structure defines a Trie Manager for efficient Pokémon searching and insertion in the trie. It contains:</p>
+    <ul>
+        <li><code>getNodePtr()</code>: A function pointer that initializes and returns a pointer to a new Trie node.</li>
+        <li><code>getCharIndexPtr()</code>: A function pointer that returns the index corresponding to a character within the trie.</li>
+        <li><code>insertPtr()</code>: A function pointer that inserts a string into the trie, associating it with an index and using the TrieManager for management.</li>
+        <li><code>searchPtr()</code>: A function pointer that searches the trie for a given string and returns a boolean indicating if the string exists.</li>
+        <li><code>freeTriePtr()</code>: A function pointer that frees all dynamically allocated memory for the trie nodes.</li>
+    </ul>
+</div>
 
 
 <hr>
@@ -147,7 +167,57 @@
     </ul>
     <p><strong>Returns:</strong> Nothing (void).</p>
 </div>
+<div class="function-explanation">
+    <h2><code>void initializeTrieManager(struct TrieManager *manager)</code></h2>
+    <p><strong>Description:</strong> This function initializes an instance of the <code>TrieManager</code> structure by assigning function pointers for creating, searching, inserting, and freeing a trie from memory. It sets up the necessary functions for trie management.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>struct TrieManager *manager</code>: A pointer to the <code>TrieManager</code> instance to be initialized.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
 
+<div class="function-explanation">
+    <h2><code>struct Trie *getNode()</code></h2>
+    <p><strong>Description:</strong> This function creates a new root node for the trie. It dynamically allocates memory for a <code>Trie</code> structure and initializes its fields, including setting <code>isEndOfWord</code> to false, <code>index</code> to -1, and setting all child nodes to <code>NULL</code>.</p>
+    <p><strong>Returns:</strong> A pointer to the newly created <code>Trie</code> node.</p>
+</div>
+
+<div class="function-explanation">
+    <h2><code>int getCharIndex(const char *ptr)</code></h2>
+    <p><strong>Description:</strong> This function takes a character pointer and returns the corresponding index in the trie based on the character pointed to by <code>ptr</code>. It handles both uppercase and lowercase letters, as well as special characters like apostrophes, periods, and hyphens.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>const char *ptr</code>: A pointer to a character whose index in the trie is to be determined.</li>
+    </ul>
+    <p><strong>Returns:</strong> An integer representing the index of the character in the trie.</p>
+</div>
+
+<div class="function-explanation">
+    <h2><code>void insert(struct Trie *root, const char *string, const int *number, const struct TrieManager *manager)</code></h2>
+    <p><strong>Description:</strong> This function inserts a new string into the trie, creating new nodes as needed. It iterates through the string, adding characters to the trie, and marks the last node of the string as the end of a word with the associated index.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>struct Trie *root</code>: A pointer to the root node of the trie.</li>
+        <li><code>const char *string</code>: A pointer to the string to be inserted into the trie.</li>
+        <li><code>const int *number</code>: A pointer to the integer value to be stored at the last node of the inserted string.</li>
+        <li><code>const struct TrieManager *manager</code>: A pointer to the <code>TrieManager</code> instance, which provides necessary function pointers for trie operations.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
+
+<div class="function-explanation">
+    <h2><code>bool search(struct Trie *root, const char *string, int *number, const struct TrieManager *manager)</code></h2>
+    <p><strong>Description:</strong> This function searches the trie for a given string. It traverses the trie based on the characters in the string, checking if each character exists in the trie. If the string is found, it returns true and stores the associated index in <code>number</code>.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>struct Trie *root</code>: A pointer to the root node of the trie.</li>
+        <li><code>const char *string</code>: A pointer to the string to be searched for in the trie.</li>
+        <li><code>int *number</code>: A pointer to store the index associated with the string if found.</li>
+        <li><code>const struct TrieManager *manager</code>: A pointer to the <code>TrieManager</code> instance, which provides necessary function pointers for trie operations.</li>
+    </ul>
+    <p><strong>Returns:</strong> A boolean indicating whether the string exists in the trie. Returns true if found, false otherwise.</p>
+</div>
 <div class="function-explanation">
     <h2><code>void removeNewline(char *name)</code></h2>
     <p><strong>Description:</strong> This function removes any new-line characters from the given string and replaces them with a null character (<code>\0</code>). This is useful for cleaning up user input or file data that may have trailing new-line characters.</p>
@@ -194,6 +264,22 @@
         <li><code>int *caught</code>, <code>int *seen</code>: Pointers to integers tracking the number of Pokémon caught and seen.</li>
         <li><code>struct Pokemon **head</code>: A pointer to the head of the linked list of caught Pokémon.</li>
         <li><code>const struct ListManager *manager</code>: A pointer to a ListManager instance containing function pointers for manipulating the linked list of Pokémon.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
+<div class="function-explanation">
+    <h2><code>void huntHelper(int *catchNum, int *balls, struct Pokemon *pokemons, const int *index, int *caught, int *seen, struct Pokemon **head, const struct ListManager *manager)</code></h2>
+    <p><strong>Description:</strong> This function simulates the process of attempting to catch a Pokémon using an Ultra Ball. It checks whether the Pokémon can be caught based on a random number and the Pokémon's catch percentage, accounting for the increased chances provided by the Ultra Ball. Depending on the result, it either calls a function to handle the successful catch or the Pokémon fleeing.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>int *catchNum</code>: A pointer to an integer representing a randomly generated number used to determine the success of catching the Pokémon.</li>
+        <li><code>int *balls</code>: A pointer to the integer representing the number of Ultra Balls the player has, which is decremented after each use.</li>
+        <li><code>struct Pokemon *pokemons</code>: A pointer to an array of Pokémon structures, where each Pokémon has attributes like catch percentage.</li>
+        <li><code>const int *index</code>: A pointer to the index of the current Pokémon being encountered.</li>
+        <li><code>int *caught</code>: A pointer to an integer tracking the number of Pokémon successfully caught.</li>
+        <li><code>int *seen</code>: A pointer to an integer tracking the number of Pokémon seen by the player.</li>
+        <li><code>struct Pokemon **head</code>: A pointer to the head of the linked list of caught Pokémon.</li>
+        <li><code>const struct ListManager *manager</code>: A pointer to a <code>ListManager</code> instance containing functions for manipulating the linked list of caught Pokémon.</li>
     </ul>
     <p><strong>Returns:</strong> Nothing (void).</p>
 </div>
@@ -344,6 +430,15 @@
     <p><strong>Parameters:</strong></p>
     <ul>
         <li><code>const struct Pokemon *head</code>: A pointer to the head of the linked list of Pokémon.</li>
+    </ul>
+    <p><strong>Returns:</strong> Nothing (void).</p>
+</div>
+<div class="function-explanation">
+    <h2><code>void freeTrie(struct Trie *trie)</code></h2>
+    <p><strong>Description:</strong> This function recursively frees the dynamically allocated memory used to create a trie structure. It starts by checking if the current node is NULL, and if not, it traverses through each child node, recursively freeing memory for all descendant nodes before freeing the current node itself.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>struct Trie *trie</code>: A pointer to the root of the trie structure to be freed. The function will recursively free all nodes starting from this root.</li>
     </ul>
     <p><strong>Returns:</strong> Nothing (void).</p>
 </div>
