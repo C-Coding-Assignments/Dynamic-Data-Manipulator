@@ -4,24 +4,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <time.h>
 
-//function pointer which points to the removeNewline function
-void (*removeNewlinePtr) (char *) = removeNewline;
-
-//function pointer which points to the balls function
-void (*ballsPtr) (const int *, const int *, const int *) = balls;
-
-//function pointer which points to the pokeCaught function
-struct Pokemon *(*pokeCaughtPtr) (struct Pokemon *, const int *, int *, int *, struct Pokemon **, const struct ListManager *) = pokeCaught;
-
-//function pointer which points to the pokeRan function
-void (*pokeRanPtr) (struct Pokemon *, const int *, int *) = pokeRan;
-
-//function pointer which points to the sortMenu function
-int (*sortMenuPtr) () = sortMenu;
-
-//function definition for initializeListManager which initializes an instance of ListManager to alter the linked list of Pokémon
+//function definition for initializeListManager which initializes an instance of ListManager and assigns function pointers for altering the user's linked list of caught Pokémon
 void initializeListManager(struct ListManager *manager)
 {
     manager->addPtr = add;
@@ -31,7 +15,7 @@ void initializeListManager(struct ListManager *manager)
     manager->swapPtr = swap;
 }
 
-//function definition for initializeMenuManager which initializes an instance of MenuManager to facilitate the menu
+//function definition for initializeMenuManager which initializes an instance of MenuManager and assigns function pointers to facilitate the menu selection options that the user selects
 void initializeMenuManager(struct MenuManager *manager)
 {
     manager->menuPtr = menu;
@@ -43,17 +27,138 @@ void initializeMenuManager(struct MenuManager *manager)
     manager->writeToFilePtr = writeToFile;
 }
 
+//function definition for initializeTrieManager which initializes an instance of TrieManager and assigns function pointers for creating a trie, searching a trie, and freeing a trie from memory
+void initializeTrieManager(struct TrieManager *manager)
+{
+    manager->getNodePtr = getNode;
+    manager->getCharIndexPtr = getCharIndex;
+    manager->insertPtr = insert;
+    manager->searchPtr = search;
+    manager->freeTriePtr = freeTrie;
+}
+
+//function definition for getNode which creates the root node within the trie
+struct Trie *getNode()
+{
+    //variable declarations and initializations using dynamic memory allocation
+    struct Trie *parent = malloc(sizeof(struct Trie));
+
+    //selection statement which evaluates to true if memory allocation failed for the parent node; if so, exit the program
+    if (parent == NULL)
+    {
+        printf("Memory allocation failed.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    parent->isEndOfWord = false;
+    parent->index = -1;
+
+    //for loop which initializes each child node within the children array to point to NULL
+    for (int i = 0; i < ALPHABET_SIZE; i++)
+        parent->children[i] = NULL;
+
+    return parent;
+}
+
+//function definition for trieImplementation which finds and returns the appropriate integer index that is associated with the character that ptr points to
+int getCharIndex(const char *ptr)
+{
+    //selection statement which evaluates to true if the letter in the stirng that ptr points to is an upper-case letter; if so, index is initialized to *ptr - 'A'
+    if (*ptr >= 'A' && *ptr <= 'Z')
+        return *ptr - 'A';
+
+    //selection statement which evaluates to true if the letter in the stirng that ptr points to is a lower-case letter; if so, index is initialized to *ptr - 'a' + 26
+    else if (*ptr >= 'a' && *ptr <= 'z')
+        return *ptr - 'a' + 26;
+
+    //selection statement which evaluates to true if the letter in the string that ptr points to is an apostrophe; if so, index is initialized to 52
+    else if (*ptr == APOSTROPHE)
+        return APOSTOPHE_INDEX;
+
+    //selection statement which evaluates to true if the letter in the string that ptr points to is a period; if so, index is initialized to 53
+    else if (*ptr == PERIOD)    
+        return PERIOD_INDEX;
+
+    //selection statement which evaluates to true if the letter in the string that ptr points to is 2; if so, index is initialized to 54
+    else if (*ptr == TWO)
+        return TWO_INDEX;
+
+    //selection statement which evaluates to true if the letter in the string that ptr points to is a hyphen; if so, index is initialized to 55
+    else if (*ptr == HYPHEN)
+        return HYPHEN_INDEX;  
+
+    return 0;
+}
+
+
+//function definition for insert which inserts a new node into the trie with the given string and number
+void insert(struct Trie *root, const char *string, const int *number, const struct TrieManager *manager)
+{
+    //variable declarations and initialization
+    struct Trie *parent = root;
+    int index;
+    
+    //for loop which iterates through the string and inserts each character as a new node within the trie
+    for (const char *ptr = string; *ptr != '\0'; ptr++)
+    {
+        //calling the trieImplementation function to get the index that is associated with the character that ptr points to
+        index = manager->getCharIndexPtr(ptr);
+
+        //selection statement which evaluates to true if the child node at index character is NULL; if so, declare and initialize a node that is pointed to by parent
+        if (parent->children[index] == NULL)
+            parent->children[index] = getNode();
+
+        //updating the parent node to point to the child node at index character
+        parent = parent->children[index];
+    }
+
+    //updating the index of the last node in the string to the given number and marking it as the end of a word in the trie
+    parent->index = *number;
+    parent->isEndOfWord = true;
+}
+
+//function definition for search which searches the trie to see if string is a valid string that exists in the trie
+bool search(struct Trie *root, const char *string, int *number, const struct TrieManager *manager)
+{
+    //variable declarations and initialization
+    struct Trie *parent = root;
+    int index;
+
+    //for loop which iterates through the string and checks if each character exists as a node within the trie
+    for (const char *ptr = string; *ptr != '\0'; ptr++)
+    {
+        //calling the trieImplementation function to get the index that is associated with the character that ptr points to
+        index = manager->getCharIndexPtr(ptr);
+
+        //selection statement which evaluates to true if the child node at index character is NULL; if so, the string does not exist in the trie and the function returns false
+        if (parent->children[index] == NULL)
+            return false;
+
+        //updating the parent node to point to the child node at index character
+        parent = parent->children[index];
+    }
+    
+    //if the loop completes without finding a null node, the string exists in the trie and the function returns true; the number associated with the string is also stored in *number
+    *number = parent->index;
+
+    return (parent != NULL && parent->isEndOfWord);
+}
+
 //function definition for removeNewline which removes the new-line characters from the string and replaces them with the null character
 void removeNewline(char *name)
 {
-    //for loop which iterates through the string until the first null-character is being pointed to by ptr and replaces each new-line character with the null character
+    //selection statement which evaluates to true if name points to an empty string; if so, this function returns back to where the function was called
+    if (name == NULL)
+        return;
+
+    //for loop which iterates through the string until the first null-character is found
     for (char *ptr = name; *ptr != '\0'; ptr++)
         //selection statement which evaluates to true if *ptr points to a new-line character; if so, it replaces the new-line character with a null character
         if (*ptr == '\n')
             *ptr = '\0';
 }
 
-//function defintion for validRegion which determines if the user entered a valid region
+//function definition for validRegion which determines if the user entered a valid region
 bool validRegion(char *region)
 {
     //converting first character in region to upper case
@@ -61,7 +166,7 @@ bool validRegion(char *region)
 
     //for loop which iterates through all characters within region, converts the remainder of characters to lower case, and converts any new-line characters to NULL characters
     for (char *ptr = region + 1; *ptr != '\0'; *ptr = tolower(*ptr), ptr++);
-    removeNewlinePtr(region);
+    removeNewline(region);
 
     //returning true if the user entered a valid region; otherwise, returning false
     return (!strcmp(region, "Kanto") || !strcmp(region, "Johto") || !strcmp(region, "Hoenn") || !strcmp(region, "Sinnoh")) ? true : false;
@@ -84,42 +189,49 @@ void menu()
 //function definition for getSelection which gets the user's menu selection and converts the input into a friendly form
 void getSelection(char *input)
 {
-    //getting the user's input
-    printf("Selection > ");
-    fgets(input, MAX_DEX_ENTRY, stdin);
-    //removing the newline character from the user's input
-    removeNewlinePtr(input); 
+    //do-while loop which continues to prompt the user for input until a valid selection is provided
+    do
+    {
+        //getting the user's input
+        printf("Selection > ");
+        fgets(input, MAX_DEX_ENTRY, stdin);
+        //removing the newline character from the user's input
+        removeNewline(input); 
+
+        if (!strlen(input))
+            printf("\nInput must at lease one or more characters long.\n\n");
+    } while (!strlen(input));
 
     //for loop which iterates through the user's input, converts the first character in the user's input to upper case, converts the remainder of the user's input to lower case, and converts any new-line characters to NULL characters
     for (char *ptr = input; *ptr != '\0'; ptr++)
-        //ternary expression which evaluates to true if ptr points to the first character in the user's input; if so, make the first character uppercase; otherwise, make the rest of the characters lowercase
-        (ptr == input) ? (*ptr = toupper(*ptr)) : (*ptr = tolower(*ptr));   
+        //ternary expression which evaluates to true if ptr points to the first character in the user's input or if the previous character was either a . or a -; if so, make the first character uppercase; otherwise, make the rest of the characters lowercase
+        (ptr == input || *(ptr - 1) == '.' || *(ptr - 1) == '-') ? (*ptr = toupper(*ptr)) : (*ptr = tolower(*ptr));       
 }   
 
 //function definition for hunt which facilitates the Hunt menu option for catching Pokémon
 void hunt(char *region, struct Pokemon *pokemons, const int *size, void (*balls) (const int *, const int *, const int *), int *pokeBalls, int *greatBalls, int *ultraBalls, int *caught, int *seen, struct Pokemon **head, const struct ListManager *manager)
 {
-    //random number generator seed
-    srand(time(NULL));
-
     //variable declarations and initialization
-    int randomNum, catchNum = rand() % 100 + 1, selectedBall;
-    char temp[MAX_DEX_ENTRY];
-    //calling removeNewlinePtr function to remove new-line characters from region and replace them with null characters
-    removeNewlinePtr(region);
+    int randomNum, catchNum = rand() % 100 + 1, choosenBallType;
+    char inputBuffer[MAX_DEX_ENTRY];
+    //calling removeNewline function to remove new-line characters from region and replace them with null characters
+    removeNewline(region);
 
     //selection statement which evaluates to true if region is equal to Kanto; if so, generate a random number between 1 and 151 (inclusive)
     if (!strcmp(region, "Kanto"))
-        randomNum = rand() % 151 + 1;
+        randomNum = rand() % KANTO_MAX_POKEMON + 1;
+
     //selection statement which evaluates to true if region is equal to Johto; if so, generate a random number between 152 and 251 (inclusive)
     else if (!strcmp(region, "Johto"))
-        randomNum = rand() % 100 + 152;
+        randomNum = rand() % JOHTO_MAX_POKEMON + 152;
+
     //selection statement which evaluates to true if region is equal to Hoenn; if so, generate a random number between 252 and 386 (inclusive)
     else if (!strcmp(region, "Hoenn")) 
-        randomNum = rand() % 135 + 252;
+        randomNum = rand() % HOENN_MAX_POKEMON + 252;
+
     //selection statement which evaluates to true if region is equal to Sinnoh; if so, generate a random number between 387 and 493 (inclusive)
     else
-        randomNum = rand() % 107 + 387;
+        randomNum = rand() % SINNOH_MAX_POKEMON + 387;
     
     //randomly generating individual values for each Pokémon that the user encounters
     pokemons[randomNum].data->attackIV = rand() % 15 + 1;
@@ -147,77 +259,73 @@ void hunt(char *region, struct Pokemon *pokemons, const int *size, void (*balls)
     do
     {
         //calling the balls function which is responsible for displaying how many of each type of ball the user has
-        ballsPtr(pokeBalls, greatBalls, ultraBalls);    
+        balls(pokeBalls, greatBalls, ultraBalls);    
         
         //getting the user's input and then converting the user's input into an integer using the atoi function within the stdlib library
         printf("Choose ball (1, 2, or 3) > ");    
-        fgets(temp, sizeof(temp), stdin);
-        selectedBall = atoi(temp);
+        fgets(inputBuffer, sizeof(inputBuffer), stdin);
+        choosenBallType = atoi(inputBuffer);
 
         //selection statement which evaluates to true if the user has chosen a Poké Ball and if the user has more than zero Poké Balls
-        if (selectedBall == 1 && *pokeBalls > 0)
+        if (choosenBallType == 1 && *pokeBalls > 0 || choosenBallType == 2 && *greatBalls > 0 || choosenBallType == 3 && *ultraBalls > 0)
         {
-            printf("\nThrew a Poké Ball!\n");
+            //selection statement which evaluates to true if the user has chosen to throw a Poké Ball
+            if (choosenBallType == 1)
+                printf("\nThrew a Poké Ball!\n");
 
-            //decrementing the number of Pokéballs the user has since one of them was used in the attempt to catch the Pokémon
-            (*pokeBalls)--;
+            //selection statement which evaluates to true if the user has chosen to throw a Great Ball; if so, increase the chance of the user catching the Pokémon by 20 percent
+            else if (choosenBallType == 2)
+            {
+                printf("\nThrew a Great Ball!\n");
+                catchNum -= 20;
+            }
 
-            //ternary expression which evaluates to true if the randomly generated integer, catchNum, is greater than the catch percentage of the Pokémon at index randomNum; if so, call the pokeCaught function which facilitates the catching process; otherwise, call the pokeRan function which facilitates the Pokémon fleeing process
-            (catchNum <= pokemons[randomNum].catchPercentage) ? (pokeCaughtPtr(pokemons, &randomNum, caught, seen, head, manager)) : (pokeRanPtr(pokemons, &randomNum, seen));
-        }
+            //selection statement which evaluates to true if the user has chosen to throw an Ultra Ball; if so, increase the chance of the user catching the Pokémon by 40 percent
+            else if (choosenBallType == 3)
+            {
+                printf("\nThrew an Ultra Ball!\n");
+                catchNum -= 40;
+            }
 
-        //selection statement which evaluates to true if the user has chosen a Great Ball and if the user has more than one Great Ball    
-        else if (selectedBall == 2 && *greatBalls > 0)
-        {
-            printf("\nThrew a greatBall!\n");
-
-            //decrementing the number of Great Balls the user has since one of them was used in the attempt to catch the Pokémon
-            (*greatBalls)--;
-
-            //ternary expression which evaluates to true if the randomly generated integer, catchNum, is greater than the catch percentage of the Pokémon at index randomNum plus 20 since the Great Ball increases the chance of catching the Pokémon; if so, call the pokeCaught function which facilitates the catching process; otherwise, call the pokeRan function which facilitates the Pokémon fleeing process
-            (catchNum <= pokemons[randomNum].catchPercentage + 20) ? (pokeCaughtPtr(pokemons, &randomNum, caught, seen, head, manager)) : (pokeRanPtr(pokemons, &randomNum, seen));
-        }
-
-        //selection statement which evaluates to true if the user has chosen an Ultra Ball and if the user has more than one Ultra Ball
-        else if (selectedBall == 3 && *ultraBalls > 0)
-        {
-            printf("\nThrew an Ultra Ball!\n");
-
-            //decrementing the number of Ultra Balls the user has since one of them was used in the attempt to catch the Pokémon
-            (*ultraBalls)--;
-
-            //ternary expression which evaluates to true if the randomly generated integer, catchNum, is greater than the catch percentage of the Pokémon at index randomNum plus 40 since the Ultra Ball increases the chance of catching the Pokémon; if so, call the pokeCaught function which facilitates the catching process; otherwise, call the pokeRan function which facilitates the Pokémon fleeing process
-            (catchNum <= pokemons[randomNum].catchPercentage + 40) ? (pokeCaughtPtr(pokemons, &randomNum, caught, seen, head, manager)) : (pokeRanPtr(pokemons, &randomNum, seen));
+            //calling the huntHelper function which determines whether the user has caught the Pokémon based on the catchNum argument; the function handles what to do if the Pokémon is caught or has ran
+            huntHelper(&catchNum, ultraBalls, pokemons, &randomNum, caught, seen, head, manager);
         }
 
         //selection statement which evaluates to true if the user has chosen to throw a Poké Ball, but the user has zero Poké Balls
-        else if (selectedBall == 1 && *pokeBalls == 0)
+        else if (choosenBallType == 1 && *pokeBalls == 0 || choosenBallType == 2 && *greatBalls == 0 || choosenBallType == 3 && *ultraBalls == 0)
         {
-            printf("\nYou don't have any Poké Balls.\n"); 
-            selectedBall = 4;
-        }    
+            //selection statement which evaluates to true if the user has thrown a Poké ball
+            if (choosenBallType == 1)
+                printf("\nYou don't have any Poké Balls.\n");
 
-        //selection statement which evaluates to true if the user has chosen to throw a Great Ball, but the user has zero Great Balls
-        else if (selectedBall == 2 && *greatBalls == 0)
-        {
-            printf("\nYou don't have any Great Balls.\n"); 
-            selectedBall = 4;
-        }
-
-        //selection statement which evaluates to true if the user has chosen to throw an Ultra Ball, but the user has zero Ultra Balls
-        else if (selectedBall == 3 && *ultraBalls == 0)
-        {
-            printf("\nYou don't have any Ultra Balls.\n"); 
-            selectedBall = 4;
+            //selection statement which evaluates to true if the user has thrown a Great Ball     
+            else if (choosenBallType == 2)    
+                printf("\nYou don't have any Great Balls.\n"); 
+            
+            //selection statement which evaluates to true if the user has thrown an Ultra Ball
+            else if (choosenBallType == 3)    
+                printf("\nYou don't have any Ultra Balls.\n"); 
+            
+            choosenBallType = 4;
         }    
 
         //selection statement which evaluates to true if the user has chosen an invalid option
         else
             printf("\nInvalid input. Please try again.\n"); 
-    } while (selectedBall != 1 && selectedBall != 2 && selectedBall != 3 && (*pokeBalls + *greatBalls + *ultraBalls + *ultraBalls > 0));
+    } while (choosenBallType != 1 && choosenBallType != 2 && choosenBallType != 3 && (*pokeBalls + *greatBalls + *ultraBalls + *ultraBalls > 0));
 }
 
-//function defintion for balls which prints a neat display of how many Poké Balls, Great Balls, and Ultra Balls the user currently has
+//function definition for huntHelper which determines whether the user has successfully caught the Pokémon it is encountering or if the Pokémon has fled
+void huntHelper(int *catchNum, int *balls, struct Pokemon *pokemons, const int *index, int *caught, int *seen, struct Pokemon **head, const struct ListManager *manager)
+{
+    //decrementing the number of Ultra Balls the user has since one of them was used in the attempt to catch the Pokémon
+    (*balls)--;
+
+    //ternary expression which evaluates to true if the randomly generated integer, catchNum, is greater than the catch percentage of the Pokémon at index randomNum plus 40 since the Ultra Ball increases the chance of catching the Pokémon; if so, call the pokeCaught function which facilitates the catching process; otherwise, call the pokeRan function which facilitates the Pokémon fleeing process
+    (*catchNum <= pokemons[*index].catchPercentage) ? (pokeCaught(pokemons, index, caught, seen, head, manager)) : (pokeRan(pokemons, index, seen));
+}
+
+//function definition for balls which prints a neat display of how many Poké Balls, Great Balls, and Ultra Balls the user currently has
 void balls(const int *pokeBalls, const int *greatBall, const int *ultraBall)
 {
     printf("+-----------------+-------------+\n");
@@ -296,13 +404,13 @@ void pokeRan(struct Pokemon *pokemons, const int *random, int *seen)
     (*seen)++;
 }
 
-//function defintion for pokemonCaught which displays all the Pokémon that the user has caught
+//function definition for pokemonCaught which displays all the Pokémon that the user has caught
 void pokemonCaught(const struct Pokemon *head, int *selection)
 {
     //variable declaration and initialization
     const struct Pokemon *ptr = head;
     int counter = 1;
-    char temp[MAX_NAME_LENGTH];
+    char inputBuffer[MAX_NAME_LENGTH];
 
     //selection statement which evaluates to true if the user has yet to catch any Pokémon
     if (head == NULL)
@@ -324,8 +432,8 @@ void pokemonCaught(const struct Pokemon *head, int *selection)
                 printf("Choose an option: ");
 
                 //taking user input and converting it to an integer
-                fgets(temp, sizeof(temp), stdin);
-                *selection = atoi(temp);
+                fgets(inputBuffer, sizeof(inputBuffer), stdin);
+                *selection = atoi(inputBuffer);
             } while (*selection < 1 || *selection > 3);
         
         //selection statement which evaluates to true if *selection is equal to 1; if so, print the detailed descriptions of all the Pokémon
@@ -340,27 +448,26 @@ void pokemonCaught(const struct Pokemon *head, int *selection)
                 printf("Region: %s\n", ptr->region);
                 printf("Caught: %d\n", ptr->data->caught);
                 printf("Seen: %d\n", ptr->data->seen);
-                printf("IV: (Attack: %d, Defense: %d, Stamina: %d) -> %.2f%%", ptr->data->attackIV, ptr->data->defenseIV, ptr->data->staminaIV, ptr->data->percentIV);
-                
-                //selection statement which evaluates to true if ptr does not point to the last node in the linked list; if so, print a new-line character
-                if (ptr->next != NULL)
-                    putchar('\n');
+                printf("IV: (Attack: %d, Defense: %d, Stamina: %d) -> %.2f%%\n", ptr->data->attackIV, ptr->data->defenseIV, ptr->data->staminaIV, ptr->data->percentIV);
             }    
 
-        //selection statement which evaluates to true if *selection is equal to 2; if so, print the names of all the Pokémons that the user has caught
+        //selection statement which evaluates to true if *selection is equal to 2; if so, print the names of all the Pokémon that the user has caught
         if (*selection == 2)
         {
-            //for loop which iterates through the linked list and prints each of the Pokémons' name
+            //for loop which iterates through the linked list and prints each of the Pokémon's name
             for (printf("\n==== Your Caught Pokémon ====\n"); ptr != NULL; ptr = ptr->next)
                 printf("%d. %s\n", counter++, ptr->name);
 
-            //printing the total number of Pokémons caught
+            //printing the total number of Pokémon caught
             printf("===============================\nTotal Pokémon Caught: %d\n\n", --counter);
         }
 
         //selection statement which evaluates to true if *selection is equal to 3; if so, exit the function
         else
-            putchar('\n'); return;
+        {
+            putchar('\n');
+            return;
+        }
     }    
 }
 
@@ -401,11 +508,11 @@ void displayPoke(const struct Pokemon *pokemons, const int *index)
     printf("=========================================\n\n");
 }
 
-//function defintion for sortMenu which prints the sorting menu
+//function definition for sortMenu which prints the sorting menu
 int sortMenu()
 {
     //variable declarations
-    char temp[MAX_DEX_ENTRY];
+    char inputBuffer[MAX_DEX_ENTRY];
     int selection;
 
     //do-while loop which continues until a valid selection is made
@@ -425,8 +532,8 @@ int sortMenu()
         printf("Enter your choice > ");
 
         //reading user input and converting it to an integer
-        fgets(temp, sizeof(temp), stdin);
-        selection = atoi(temp);
+        fgets(inputBuffer, sizeof(inputBuffer), stdin);
+        selection = atoi(inputBuffer);
     } while (selection < 1 || selection > 6);
     
     //returning the selected sorting option
@@ -440,9 +547,16 @@ struct Pokemon *sort(struct Pokemon *head, const struct ListManager *manager)
     int selection;
     struct Pokemon *ptr = head, *ptr2 = head;
     bool swap;
+
+    //selection statement which evaluates to true if head is equal to NULL, indicating that the user has yet to catch a Pokémon; if so, print an error message and exit the function
+    if (head == NULL)
+    {
+        printf("\nYou have not caught any Pokémon yet so nothing can be sorted.\n\n");
+        return NULL;
+    }
     
     //getting the user's input for which type of sorting to take place on the linked list
-    selection = sortMenuPtr();
+    selection = sortMenu();
 
     //outer for loop which iterates over the linked list and sorts the students
     for (ptr = head; ptr != NULL && selection != 6; ptr = ptr->next)
@@ -491,14 +605,14 @@ struct Pokemon *sort(struct Pokemon *head, const struct ListManager *manager)
 struct Pokemon *deleteNodes(struct Pokemon *head)
 {
     //variable declaration and initialization
-    struct Pokemon *temp = head;
+    struct Pokemon *tempNode = head;
 
     //while loop which traverses the linked list and frees each node that has been dynamically allocated
-    while (temp != NULL)
+    while (tempNode != NULL)
     {
-        temp = head->next;
-        free(temp);
-        head = temp;
+        tempNode = head->next;
+        free(tempNode);
+        head = tempNode;
     }
 
     //returning NULL after all nodes have been freed
@@ -509,16 +623,16 @@ struct Pokemon *deleteNodes(struct Pokemon *head)
 void swap(struct Pokemon *ptr, struct Pokemon *ptr2, struct Pokemon *head)
 {
     //variable declaration and initialization using dynamically allocated memory
-    struct Pokemon *temp = malloc(sizeof(struct Pokemon));
+    struct Pokemon *tempNode = malloc(sizeof(struct Pokemon));
 
     //swapping the data members of the two nodes
-    strcpy(temp->name, ptr->name);
-    strcpy(temp->type, ptr->type);
-    strcpy(temp->dexEntry, ptr->dexEntry);
-    strcpy(temp->region, ptr->region);
-    temp->pokemonNum = ptr->pokemonNum;
-    temp->catchPercentage = ptr->catchPercentage;
-    temp->data = ptr->data;
+    strcpy(tempNode->name, ptr->name);
+    strcpy(tempNode->type, ptr->type);
+    strcpy(tempNode->dexEntry, ptr->dexEntry);
+    strcpy(tempNode->region, ptr->region);
+    tempNode->pokemonNum = ptr->pokemonNum;
+    tempNode->catchPercentage = ptr->catchPercentage;
+    tempNode->data = ptr->data;
 
     //swapping the data members of the two nodes
     strcpy(ptr->name, ptr2->name);
@@ -530,30 +644,37 @@ void swap(struct Pokemon *ptr, struct Pokemon *ptr2, struct Pokemon *head)
     ptr->data = ptr2->data;
 
     //swapping the data members of the two nodes
-    strcpy(ptr2->name, temp->name);
-    strcpy(ptr2->type, temp->type);
-    strcpy(ptr2->dexEntry, temp->dexEntry);
-    strcpy(ptr2->region, temp->region);
-    ptr2->pokemonNum = temp->pokemonNum;
-    ptr2->catchPercentage = temp->catchPercentage;
-    ptr2->data = temp->data;
+    strcpy(ptr2->name, tempNode->name);
+    strcpy(ptr2->type, tempNode->type);
+    strcpy(ptr2->dexEntry, tempNode->dexEntry);
+    strcpy(ptr2->region, tempNode->region);
+    ptr2->pokemonNum = tempNode->pokemonNum;
+    ptr2->catchPercentage = tempNode->catchPercentage;
+    ptr2->data = tempNode->data;
 
     //freeing the dynamically allocated memory for the temporary node
-    free(temp);
+    free(tempNode);
 }
 
 //function definition for reverse which reverses the nodes within the doubly linked list
 struct Pokemon *reverse(struct Pokemon *head, const struct ListManager *manager)
 {
     //variable declarations and initializations
-    struct Pokemon *ptr = head, *ptr2 = head;
+    struct Pokemon *ptr = head, *ptr2 = head, *allNodes;
     int nodes = 0, i = 0;
 
     //for loop which iterates and counts all the nodes in the doubly linked list
     for (struct Pokemon *ptr = head; ptr != NULL; ptr = ptr->next, nodes++);
 
-    //variable declaration
-    struct Pokemon allNodes[nodes];
+    //dynamically allocating memory for allNodes array
+    allNodes = malloc(nodes * sizeof(struct Pokemon));
+
+    //selection statement which evaluates to true if allNodes is equal to NULL, indicating that memory was not successfully allocated dynamically
+    if (allNodes == NULL)
+    {
+        printf("\nMemory allocation failed.\n");
+        exit(EXIT_FAILURE);
+    }
 
     //for loop which copies all the nodes from the doubly linked list to an array
     for (struct Pokemon *ptr = head; ptr != NULL; ptr = ptr->next)
@@ -573,6 +694,9 @@ struct Pokemon *reverse(struct Pokemon *head, const struct ListManager *manager)
         ptr->data->seen = allNodes[i].data->seen;
         ptr->data = allNodes[i].data;
     }
+
+    //freeing the dynamically allocated memory for allNodes array
+    free(allNodes);
 
     return head;
 }
@@ -605,3 +729,21 @@ void writeToFile(const struct Pokemon *head)
     //closing the file
     fclose(fptr);
 }   
+
+//function definition for freeTrie which frees the dynamically allocated memory used for the creation of the trie structure
+void freeTrie(struct Trie *trie)
+{
+    //selection statement which evaluates to true if the root of the trie structure is NULL; if so, simply return back to main
+    if (trie == NULL)
+        return;
+
+    //for loop which iterates over all the children nodes of the current node and recursively frees the dynamically allocated memory for each child node
+    for (int i = 0; i < ALPHABET_SIZE; i++)
+        //selection statement which evaluates to true if the children nodes of the current node does not equal NULL; if so, recursively call the function to navigate to an inner node within the trie
+        if (trie->children[i] != NULL)  
+            //calling freeTrie function to free the trie structure
+            freeTrie(trie->children[i]);
+
+    //freeing the dynamically allocated memory for the current node
+    free(trie);        
+}
