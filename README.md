@@ -88,7 +88,7 @@
         </ul>
     </div>
     <div class="structure-explanation">
-    <h2>1. <code>struct PokemonStatus</code></h2>
+    <h2>2. <code>struct PokemonStatus</code></h2>
     <p>This structure defines the status of a Pokémon, providing details about its visibility, attributes, and individual values:</p>
     <ul>
         <li><code>caught</code>: The number of times the Pokémon has been caught.</li>
@@ -100,7 +100,7 @@
     </ul>
 </div>
     <div class="structure-explanation">
-    <h2>1. <code>struct ListManager</code></h2>
+    <h2>3. <code>struct ListManager</code></h2>
     <p>This structure contains function pointers responsible for managing and manipulating the linked list of Pokémon. Each function pointer performs a specific operation on the linked list:</p>
     <ul>
         <li><code>addPtr</code>: A function pointer pointing to the <code>add</code> function, which adds a new Pokémon to the linked list.</li>
@@ -111,7 +111,7 @@
     </ul>
 </div>
 <div class="structure-explanation">
-    <h2>1. <code>struct MenuManager</code></h2>
+    <h2>4. <code>struct MenuManager</code></h2>
     <p>This structure contains function pointers responsible for facilitating menu operations and calling various functions when the user interacts with the menu or exits the program. Each function pointer represents a specific operation or menu functionality:</p>
     <ul>
         <li><code>menuPtr</code>: A function pointer pointing to the <code>menu</code> function, which displays the main menu to the user and handles their selections.</li>
@@ -124,7 +124,7 @@
     </ul>
 </div>
 <div class="structure-explanation">
-    <h2>1. <code>struct Trie</code></h2>
+    <h2>5. <code>struct Trie</code></h2>
     <p>This structure defines a Trie for storing characters within a string efficiently. It contains:</p>
     <ul>
         <li><code>children[ALPHABET_SIZE]</code>: An array of pointers to child Tries, where each child corresponds to a character in the string.</li>
@@ -133,7 +133,7 @@
     </ul>
 </div>
 <div class="structure-explanation">
-    <h2>2. <code>struct TrieManager</code></h2>
+    <h2>6. <code>struct TrieManager</code></h2>
     <p>This structure defines a Trie Manager for efficient Pokémon searching and insertion in the trie. It contains:</p>
     <ul>
         <li><code>getNodePtr()</code>: A function pointer that initializes and returns a pointer to a new Trie node.</li>
