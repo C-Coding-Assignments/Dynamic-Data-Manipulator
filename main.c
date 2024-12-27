@@ -162,7 +162,7 @@ int main()
         //selection statement which evaluates to true if the user has requested to hunt a Pokémon
         if (!strcmp(inputBuffer, "Hunt"))
             //calling the hunt function to have the user encounter a Pokémon, attempt to catch the Pokémon, to update the ball count, and add the Pokémon to the linked list if the Pokémon was caught
-            menuManager->huntPtr(region, pokemons, &size, pokeBalls, &pokeBalls, &greatBalls, &ultraBalls, &caught, &seen, &head, listManager);
+            menuManager->huntPtr(region, pokemons, &size, balls, &pokeBalls, &greatBalls, &ultraBalls, &caught, &seen, &head, listManager);
 
         //selection statement which evaluates to true if the user would like to view its caught Pokémon
         else if (!strcmp(inputBuffer, "Pokemon"))
