@@ -8,6 +8,32 @@
 #define MAX_NAME_LENGTH 101
 //macro definition for the maximum number of characters within the Pokémon's dex entry
 #define MAX_DEX_ENTRY 10001
+//macro definition for the number of letters in the alphabet
+#define ALPHABET_SIZE 56
+//macro definition for the ASCII value of an apostrophe
+#define APOSTROPHE 39
+//macro definition for the ASCII value of a period
+#define PERIOD 46
+//macro definition for the character digit two character, '2'
+#define TWO '2'
+//macro definition for the character hyphen character, '-'
+#define HYPHEN '-'
+//macro definition for the maximum number of Pokémon in the Kanto region
+#define KANTO_MAX_POKEMON 151
+//macro definition for the maximum number of Pokémon in the Johto region
+#define JOHTO_MAX_POKEMON 100
+//macro definition for the maximum number of Pokémon in the Hoenn region
+#define HOENN_MAX_POKEMON 135
+//macro definition for the maximum number of Pokémon in the Sinnoh region
+#define SINNOH_MAX_POKEMON 107
+//macro definition for the trie index representing an apostrophe
+#define APOSTOPHE_INDEX ALPHABET_SIZE - 4
+//macro definition for the trie index representing a period
+#define PERIOD_INDEX ALPHABET_SIZE - 3
+//macro definition for the trie index representing the integer two
+#define TWO_INDEX ALPHABET_SIZE - 2
+//macro definition for the trie index representing the hyphen
+#define HYPHEN_INDEX ALPHABET_SIZE - 1
 
 //struct definition for Pokemon which defines the attributes that make up an individual Pokémon
 struct Pokemon
@@ -15,8 +41,7 @@ struct Pokemon
     int pokemonNum, catchPercentage;
     char name[MAX_NAME_LENGTH], type[MAX_NAME_LENGTH], region[MAX_NAME_LENGTH], dexEntry[MAX_DEX_ENTRY];
     struct PokemonStatus *data;
-    struct Pokemon *next;
-    struct Pokemon *previous;
+    struct Pokemon *next, *previous;
 };
 
 
@@ -30,35 +55,59 @@ struct PokemonStatus
 //struct definition for ListManager which contains the function pointers that are responsible for manipulating the linked list containing all the Pokémon that the user has caught
 struct ListManager
 {
-    //function pointer which points to the add function
+    //adds a Pokémon to the linked list
     struct Pokemon *(*addPtr) (struct Pokemon **, const struct Pokemon *, const int *);
-    //function pointer which points to the sort function
+    //sorts the Pokémon in the linked list based on how the user would like the list to be sorted
     struct Pokemon *(*sortPtr) (struct Pokemon *, const struct ListManager *);
-    //function pointer which points to the reverse function
+    //reverses the Pokémon in the linked list
     struct Pokemon *(*reversePtr) (struct Pokemon *, const struct ListManager *);
-    //function pointer which points to the deleteNodes function
+    //deletes all the Pokémon in the linked list
     struct Pokemon *(*deleteNodesPtr) (struct Pokemon *);
-    //function pointer which points to the swap function
+    //swaps the Pokémon in the linked list according to how the user would like the list to be sorted
     void (*swapPtr) (struct Pokemon *, struct Pokemon *, struct Pokemon *);
 };
 
 //struct definition for ListManager which contains the function pointers that are responsible for facilitating the menu operations and calls to functions once the user exits the program
 struct MenuManager
 {
-    //function pointer which points to the menu function
+    //prints the application's main menu to the user
     void (*menuPtr) ();
-    //function pointer which points to the hunt function
+    //responsible for the functionality of catching Pokémon
     void (*huntPtr) (char *, struct Pokemon *, const int *, void (*) (const int *, const int *, const int *), int *, int *, int *, int *, int *, struct Pokemon **, const struct ListManager *);
-    //function pointer which points to the sortMenu function
+    //prints which Pokémon that user has caught
     void (*pokemonCaughtPtr) (const struct Pokemon *, int *);
-    //function pointer which points to the stats function
+    //prints the user's catching statistics to the screen
     void (*statsPtr) (const int *, const int *);
-    //function pointer which points to the inventory function
+    //prints the user's inventory of balls
     void (*inventoryPtr) (const int *, const int *, const int *);
-    //function pointer which points to the displayPoke function
+    //displays the Pokémon's information that the user input as a menu selection
     void (*displayPokePtr) (const struct Pokemon *, const int *);
-    //function pointer which points to the writeToFile function
+    //writes all the Pokémon that the user has caught to a txt file
     void (*writeToFilePtr) (const struct Pokemon *);
+};
+
+//struct definition for Trie which defines a trie structure for storing characters within a string for efficiency
+struct Trie
+{
+    struct Trie *children[ALPHABET_SIZE];
+    bool isEndOfWord;
+    int index;
+};
+
+
+//struct definition for TrieManager which defines a trie manager structure for efficient Pokémon searching and insertion in the trie
+struct TrieManager
+{
+    //initializes a trie structure for the root of the trie and all child tries
+    struct Trie *(*getNodePtr) ();
+    //helps determine which index of a trie child structure should be accessed
+    int (*getCharIndexPtr) (const char *);
+    //inserts a new string within the trie structure
+    void (*insertPtr) (struct Trie *, const char *, const int *, const struct TrieManager *);
+    //searches a trie structure to see if a string that is passed through the function is within the function. the function then returns a boolean value regarding whether or not that string exists in the trie
+    bool (*searchPtr) (struct Trie *, const char *, int *, const struct TrieManager *);
+    //frees all the dynamically allocated parent tries and child tries in the structure
+    void (*freeTriePtr) (struct Trie *);
 };
 
 //function prototype for initializeListManager which initializes the variable of type struct ListManager * in order to apply operations to the list of caught Pokémon
@@ -67,7 +116,22 @@ void initializeListManager(struct ListManager *);
 //function prototype for initializeListManager which initializes the variable of type struct MenuManager * to run menu options
 void initializeMenuManager(struct MenuManager *);
 
-//function prototype for assignPokemon which reads the information from poke.txt and assigns the array of type struct Pokemon
+//function prototype for initializeTrieManager which initializes the variable of type struct TrieManager * for efficient searching of Pokémon
+void initializeTrieManager(struct TrieManager *);
+
+//function prototype for getNode which creates a Trie root for efficient Pokémon searchin
+struct Trie *getNode();
+
+//function prototype for getCharIndex which returns the index of the trie child node needed for the trie structure
+int getCharIndex(const char *);
+
+//function prototype for insert which inserts children underneath the parent node
+void insert(struct Trie *, const char *, const int *, const struct TrieManager *);
+
+//function prototype for search which searches a Trie for matching Pokémon
+bool search(struct Trie *, const char *, int *, const struct TrieManager *); 
+
+//function prototype for assignPokemon which reads the information from poke.txt and assigns the array of type struct Pokémon
 void assignPokemon(FILE *, int *, struct Pokemon **);
 
 //function prototype for removeNewline which removes new-line characters from a string
@@ -84,6 +148,9 @@ void getSelection(char *);
 
 //function prototype for hunt which facilitates the hunt menu option. This function provides the functionality for the Pokémon catching process
 void hunt(char *, struct Pokemon *, const int *, void (*) (const int *, const int *, const int *), int *, int *, int *, int *, int *, struct Pokemon **, const struct ListManager *);
+
+//function prototype for huntHelper which determines whether the user has successfully caught the Pokémon it is encountering or if the Pokémon has fled
+void huntHelper(int *, int *, struct Pokemon *, const int *, int *, int *, struct Pokemon **, const struct ListManager *);
 
 //function prototype for balls which prints a neat display and informing the user about how many of each type of ball it has within its inventory
 void balls(const int *, const int *, const int *);
@@ -126,5 +193,8 @@ struct Pokemon *reverse(struct Pokemon *, const struct ListManager *);
 
 //function prototype for writeToFile which writes the linked list of Pokémon and stores the information in the file given by the file pointer
 void writeToFile(const struct Pokemon *);
+
+//function prototype for freeTrie which frees the dynamically allocated memory within the trie structure
+void freeTrie(struct Trie *);
 
 #endif
