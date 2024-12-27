@@ -5,38 +5,40 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <time.h>
 
 int main()
 {
+    //random number generator seed
+    srand(time(NULL));
+
     //function declarations and initializations using dynamic memory allocation
     FILE *fptr;
-    char name[MAX_NAME_LENGTH], region[MAX_NAME_LENGTH], temp[MAX_DEX_ENTRY + 1];
-    int returnSize, size, pokeBalls = 10, greatBalls = 10, ultraBalls = 10, caught = 0, seen = 0, selection = 0;
+    char name[MAX_NAME_LENGTH], region[MAX_NAME_LENGTH], inputBuffer[MAX_DEX_ENTRY + 1];
+    int returnSize, size, pokeBalls = 10, greatBalls = 10, ultraBalls = 10, caught = 0, seen = 0, selection = 0, index;
+    bool isValidName = true;
     struct Pokemon *pokemons, *head = NULL;
-    bool nameInput = true;
+    struct Trie *trie = NULL;
     struct ListManager *listManager = malloc(sizeof(struct ListManager));
     struct MenuManager *menuManager = malloc(sizeof(struct MenuManager));
+    struct TrieManager *trieManager = malloc(sizeof(struct TrieManager));
 
-    //selection statement which evaluates to true if dynamic memory allocation failed for menuManager and/or listManager
-    if (listManager == NULL || menuManager == NULL)
+    //selection statement which evaluates to true if dynamic memory allocation failed for menuManager and/or listManager and/or trieManager
+    if (listManager == NULL || menuManager == NULL || trieManager == NULL)
     {
         printf("Memory allocation failed.\n");
         exit(EXIT_FAILURE);
     }
-
+    
     //calling the initializeListManager function and initializing the listManager variable
     initializeListManager(listManager);
     //calling the initializeMenuManager function and initializing the menuManager variable
     initializeMenuManager(menuManager);
+    //calling the initializeTrieManager function and initializing the trieManager variable
+    initializeTrieManager(trieManager);
 
-    //function pointer which points to the removeNewline function
-    void (*removeNewlinePtr) (char *) = removeNewline;
-    //function pointer which points to the validRegion function
-    bool (*validRegionPtr) (char *) = validRegion;
-    //function pointer which points to getSelection function
-    void (*getSelectionPtr) (char *) = getSelection;
-    //function pointer which points to pokeBalls function
-    void (*pokeBallsPtr) (const int *, const int *, const int *) = balls;
+    //initializing the root of the trie to validate whether the user has entered a correct name for a Pokémon it has entered
+    trie = trieManager->getNodePtr();
 
     //opening the poke.txt file and reading the Pokémon data
     fptr = fopen("poke.txt", "r");
@@ -69,20 +71,20 @@ int main()
     }
 
     //reading the Pokémon data from the file and validating the input
-    fgets(temp, sizeof(temp), fptr);
+    fgets(inputBuffer, sizeof(inputBuffer), fptr);
 
     //for loop which iterates throughout the entire file
     for (int i = 0; i < size; i++)
     {
         //reading the data from the file and validating the input
-        if (fgets(temp, sizeof(temp), fptr) == NULL)
+        if (fgets(inputBuffer, sizeof(inputBuffer), fptr) == NULL)
         {
             printf("Error reading poke.txt\n");
             exit(EXIT_FAILURE);
         }
     
         //reading the data from the file
-        returnSize = sscanf(temp, "%d,%99[^,],%99[^,],%99[^,],%d,%[^\n]", &pokemons[i].pokemonNum, pokemons[i].name, pokemons[i].type, pokemons[i].region, &pokemons[i].catchPercentage, pokemons[i].dexEntry);
+        returnSize = sscanf(inputBuffer, "%d,%99[^,],%99[^,],%99[^,],%d,%[^\n]", &pokemons[i].pokemonNum, pokemons[i].name, pokemons[i].type, pokemons[i].region, &pokemons[i].catchPercentage, pokemons[i].dexEntry);
         
         //selection statement which returns true if the more or less than six elements were read from the file
         if (returnSize != 6)
@@ -104,20 +106,31 @@ int main()
         //initializing the caught and seen attributes for each Pokémon to zero since no Pokémon has been encountered yet    
         pokemons[i].data->caught = 0;
         pokemons[i].data->seen = 0;
+
+        //calling the insertPtr function to initialize a new children tries based on the name of the Pokémon that was just read from the file
+        trieManager->insertPtr(trie, pokemons[i].name, &i, trieManager);
     }
 
     //closing the poke.txt file
     fclose(fptr);
 
-    //getting the user's name and manipulating the string to remove the new-line character and replace that with a NULL character
-    printf("What's your name, trainer? > ");
-    fgets(name, sizeof(name), stdin);
-    //calling the removeNewline function to remove the new-line character and replace that with a NULL character
-    removeNewlinePtr(name);
+    //do-while loop which iterates until the user enters a name that is at least two characters long
+    do
+    {
+        ///getting the user's name and manipulating the string to remove the new-line character and replace that with a NULL character
+        printf("What's your name, trainer? > ");
+        fgets(name, sizeof(name), stdin);
+        //calling the removeNewline function to remove the new-line character and replace that with a NULL character
+        removeNewline(name);
+
+        //selection statement which evaluates to true if the user entered a name that is less than two characters long; if so, an error message is displayed to the screen
+        if (strlen(name) < 2)
+            printf("Name must be at least two characters.\n\n");
+    } while (strlen(name) < 2);
 
     //welcoming the user to the application
-    printf("\nWelcome, %s, to the Programming I Safari Zone!\nYou'll have 30 chances to catch Pokemon, make them count!\n", name);
-    printf("The hunt will end when you choose or when you run out of Pokeballs.\nWhich region would you like to visit?\n\n");
+    printf("\nWelcome, %s, to the Programming I Safari Zone!\nYou'll have 30 chances to catch Pokémon, make them count!\n", name);
+    printf("The hunt will end when you choose or when you run out of poké balls, great balls, and ultra balls.\nWhich region would you like to visit?\n\n");
 
     //do-while loop which iterates until the user enters a valid region
     do
@@ -126,95 +139,89 @@ int main()
         printf("Enter Kanto, Johto, Hoenn, or Sinnoh > ");
         fgets(region, sizeof(region), stdin);
         //calling the removeNewline function to remove the new-line character and replace that with a NULL character
-        removeNewlinePtr(region);
-    } while (!validRegionPtr(region));
+        removeNewline(region);
+
+        //selection statement which evaluates to true if the user entered an invalid region; if so, an error message is displayed to the screen
+        if (!validRegion(region))
+            printf("Invalid region. Please enter Kanto, Johto, Hoenn, or Sinnoh.\n\n");
+    } while (!validRegion(region));
 
     printf("\nTraveling to %s\n", region);
 
-    //do-while loop which iterates until the user chooses to exit the application
+    //do-while loop which iterates until the user chooses to exit the application or until the user runs out of balls
     do
     {
-        //initializing selection to equal 0 so printing menu appears when user wants to display its caught Pokémon
+        //initializing selection to equal 0 instead of passing 2 to the pokemonCaught function. passing 0 allows for the user to select how it would like to view its caught Pokémon
         selection = 0;
 
         //calling the menu function to print the menu to the user
         menuManager->menuPtr();
         //calling the getSelection function to get the user's menu selection
-        getSelectionPtr(temp);
+        getSelection(inputBuffer);
 
-        //selection statement which evaluates to true if the user enters Hunt
-        if (!strcmp(temp, "Hunt"))
-            //calling the hunt function to facilitate the program's Hunt option
-            menuManager->huntPtr(region, pokemons, &size, pokeBallsPtr, &pokeBalls, &greatBalls, &ultraBalls, &caught, &seen, &head, listManager);
+        //selection statement which evaluates to true if the user has requested to hunt a Pokémon
+        if (!strcmp(inputBuffer, "Hunt"))
+            //calling the hunt function to have the user encounter a Pokémon, attempt to catch the Pokémon, to update the ball count, and add the Pokémon to the linked list if the Pokémon was caught
+            menuManager->huntPtr(region, pokemons, &size, pokeBalls, &pokeBalls, &greatBalls, &ultraBalls, &caught, &seen, &head, listManager);
 
-        //selection statement which evaluates to true if the user enters Pokemon
-        else if (!strcmp(temp, "Pokemon"))
-            //calling the Pokemon function to facilitate the program's Pokemon option
+        //selection statement which evaluates to true if the user would like to view its caught Pokémon
+        else if (!strcmp(inputBuffer, "Pokemon"))
+            //calling the pokemonCaught function to show the user which Pokémon they have successfully caught
             menuManager->pokemonCaughtPtr(head, &selection);   
 
-        //selection statement which evaluates to true if the user enters Sort
-        else if (!strcmp(temp, "Sort"))
-            //calling the sort function to sort the user's caught Pokemon
+        //selection statement which evaluates to true if the user would like to sort its caught Pokémon
+        else if (!strcmp(inputBuffer, "Sort"))
+            //calling the sort function to sort the user's caught Pokémon that are stored in a linked list
             listManager->sortPtr(head, listManager);
 
-        //selection statement which evaluates to true if the user enters Stats
-        else if (!strcmp(temp, "Stats"))
-            //calling the stats function which calculates the player's statistics
+        //selection statement which evaluates to true if the user would like to view its Pokémon catching statistics
+        else if (!strcmp(inputBuffer, "Stats"))
+            //calling the stats function which calculates the player's statistics and prints those to the screen
             menuManager->statsPtr(&caught, &seen);
 
-        //selection statement which evaluates to true if the user enters Inventory
-        else if (!strcmp(temp, "Inventory"))
+        //selection statement which evaluates to true if the user would like to view how many of each ball type the user has left before the game ends
+        else if (!strcmp(inputBuffer, "Inventory"))
             //calling the inventory function to print out how many of each type of ball the user has
             menuManager->inventoryPtr(&pokeBalls, &greatBalls, &ultraBalls);     
         
-        //selection statement which evaluates to true if the user enters any other string that does not match the ones above
+        //selection statement which evaluates to true if the user has entered a menu option different than one of the ones; instead, enters a Pokémon's name; if so, print information about the Pokémon by calling the displayPoke function; otherwise, reinitialize isValidName to false so an error message can be printed to the screen indicating that the user entered garbage
         else
         {
-            nameInput = false;
-
-            //for loop which iterates through all characters in the user's input and converts them to different cases
-            for (char *ptr = temp; *ptr != '\0'; ptr++)
-                //ternary expression which evaluates to try if ptr points to the first character in temp; if so, convert the first character to uppercase; otherwise, convert the rest of the characters to lowercase
-                (ptr == temp) ? (*ptr = toupper(*ptr)) : (*ptr = tolower(*ptr));
-        
-            //for loop which iterates through all elements within the pokemons array
-            for (int i = 0; i < size; i++)
-                //selection statement which evaluates to true if the user entered a Pokemon's name
-                if (!strcmp(temp, pokemons[i].name))
-                {
-                    //calling the displayPoke function which will print out information about the Pokemon that the user entered
-                    menuManager->displayPokePtr(pokemons, &i);  
-                    nameInput = true;
-                    break;
-                }  
-
-            if (!nameInput && strcmp(temp, "Exit"))
+            ///ternary expression which evaluates to true if the user entered a Pokémon's name; if so, call the displayPoke function to print information about that Pokémon; otherwise, initialize isValidName to false so an error message can be printed to the screen
+            (isValidName = trieManager->searchPtr(trie, inputBuffer, &index, trieManager)) ? (menuManager->displayPokePtr(pokemons, &index)) : (isValidName = false);
+            
+            //selection statement which evaluates to true if the user entered garbage and if the user entered anything other than Exit; if so, print an error message to the screen indicating that the user entered
+            if (!isValidName && strcmp(inputBuffer, "Exit"))
                 printf("Invalid entry, try again.\n\n");        
         }                     
-    } while (strcmp(temp, "Exit") && pokeBalls + greatBalls + ultraBalls != 0);
+    } while (strcmp(inputBuffer, "Exit") && pokeBalls + greatBalls + ultraBalls != 0);
 
     //calling the writeToFile function to write the user's caught Pokémon to a file named "pokemons.txt" for future reference
     menuManager->writeToFilePtr(head);
 
-    //initializing selection to equal 1 so a detailed description of each Pokémon can be printed to the screen at the end of the program
+    //initializing selection to equal 1 so a detailed description of each Pokémon can be printed to the screen at the end of the program by bypassing the menu and menu options for viewing caught Pokémon
     selection = 1;
 
     //closing the application with a farewell message and freeing the dynamically allocated memory
     printf("Thanks for playing, %s!\n", name);
     if (head != NULL)
     {
-        //calling the pokemonCaught function to print the Pokemon that the user has caught
+        //calling the pokemonCaught function to print a detailed description of all the user's caught Pokémon
         menuManager->pokemonCaughtPtr(head, &selection);
-        //calling the stats function to print out the user's stats
+        //calling the stats function to print out the user's Pokémon catching statistics
         menuManager->statsPtr(&caught, &seen);
         //calling the deleteNodes function to free the dynamically allocated memory from the linked list of caught Pokémon
         head = listManager->deleteNodesPtr(head);
     }
 
-    //freeing the dynamically allocated memory from the pokemons array, listManager, and menuManager
+    //calling the freeTrie function to free the dynamically allocated memory within the trie structure
+    trieManager->freeTriePtr(trie);
+
+    //freeing the dynamically allocated memory from the pokemons array, listManager, menuManager, and trieManager
     free(pokemons);
     free(listManager);
     free(menuManager);
+    free(trieManager);
 
     return 0;
 }
